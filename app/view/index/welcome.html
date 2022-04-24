@@ -1,0 +1,217 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/welcome.css" media="all">
+</head>
+
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div class="layui-row layui-col-space15">
+                <div class="layui-col-md8">
+                    <div class="layui-row layui-col-space15">
+                        <div class="layui-col-md6">
+                            <div class="layui-card">
+                                <div class="layui-card-header"><i class="fa fa-warning icon"></i>数据统计</div>
+                                <div class="layui-card-body">
+                                    <div class="welcome-module">
+                                        <div class="layui-row layui-col-space10">
+                                            <div class="layui-col-xs6">
+                                                <div class="panel layui-bg-number">
+                                                    <div class="panel-body">
+                                                        <div class="panel-title">
+                                                            <span class="label pull-right layui-bg-blue">实时</span>
+                                                            <h5>本月故障统计</h5>
+                                                        </div>
+                                                        <div class="panel-content">
+                                                            <h1 class="no-margins">{$total}</h1>
+                                                            <small>当前分类总记录数</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="layui-col-xs6">
+                                                <div class="panel layui-bg-number">
+                                                    <div class="panel-body">
+                                                        <div class="panel-title">
+                                                            <span class="label pull-right layui-bg-cyan">实时</span>
+                                                            <h5>未处理故障</h5>
+                                                        </div>
+                                                        <div class="panel-content">
+                                                            <h1 class="no-margins">{$Untreated}</h1>
+                                                            <small>当前分类总记录数</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md6">
+                            <div class="layui-card">
+                                <div class="layui-card-header"><i class="fa fa-credit-card icon icon-blue"></i>快捷入口
+                                </div>
+                                <div class="layui-card-body">
+                                    <div class="welcome-module">
+                                        <div class="layui-row layui-col-space10 layuimini-qiuck">
+                                            <div class="layui-col-xs3 layuimini-qiuck-module">
+                                                <a href="javascript:;" layuimini-content-href="query/index"
+                                                    data-title="用户查询" data-icon="fa fa-window-maximize">
+                                                    <i class="fa fa-search"></i>
+                                                    <cite>用户查询</cite>
+                                                </a>
+                                            </div>
+                                            <div class="layui-col-xs3 layuimini-qiuck-module">
+                                                <a href="javascript:;" layuimini-content-href="fault" data-title="故障查询"
+                                                    data-icon="fa fa-gears">
+                                                    <i class="fa fa-gears"></i>
+                                                    <cite>故障查询</cite>
+                                                </a>
+                                            </div>
+                                            <div class="layui-col-xs3 layuimini-qiuck-module">
+                                                <a href="javascript:;" layuimini-content-href="https://www.baidu.com"
+                                                    data-title="百度搜索" data-icon="fa fa-search">
+                                                    <i class="fa fa-window-maximize"></i>
+                                                    <cite>百度搜索</cite>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="layui-col-md4">
+
+                    <div class="layui-card">
+                        <div class="layui-card-header"><i class="fa fa-bullhorn icon icon-tip"></i>系统公告</div>
+                        <div class="layui-card-body layui-text">
+                            {foreach $notice as $key => $vo}
+                                <div class="layuimini-notice">
+                                <div class="layuimini-notice-title">{$vo.title}</div>
+                                <div class="layuimini-notice-extra">{$vo.creat_time}</div>
+                                <div class="layuimini-notice-content layui-hide">
+                                    {$vo.text}
+                                </div>
+                            </div>
+                            {/foreach}
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-col-md12">
+                    <div class="layui-col-md12">
+                        <div class="layui-card">
+                            <div class="layui-card-header"><i class="fa fa-line-chart icon"></i>近7天新增故障</div>
+                            <div class="layui-card-body">
+                                <div id="echarts-records" style="width: 100%;min-height:400px"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script src="_JS_/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script>
+        layui.use(['layer', 'miniTab', 'echarts'], function () {
+            var $ = layui.jquery,
+                layer = layui.layer,
+                miniTab = layui.miniTab,
+                echarts = layui.echarts;
+
+            miniTab.listen();
+
+            /**
+             * 查看公告信息
+             **/
+            $('body').on('click', '.layuimini-notice', function () {
+                var title = $(this).children('.layuimini-notice-title').text(),
+                    noticeTime = $(this).children('.layuimini-notice-extra').text(),
+                    content = $(this).children('.layuimini-notice-content').html();
+                var html = '<div style="padding:15px 20px; text-align:justify; line-height: 22px;border-bottom:1px solid #e2e2e2;background-color: #2f4056;color: #ffffff">\n' +
+                    '<div style="text-align: center;margin-bottom: 20px;font-weight: bold;border-bottom:1px solid #718fb5;padding-bottom: 5px"><h4 class="text-danger">' + title + '</h4></div>\n' +
+                    '<div style="font-size: 12px">' + content + '</div>\n' +
+                    '</div>\n';
+                parent.layer.open({
+                    type: 1,
+                    title: '系统公告' + '<span style="float: right;right: 1px;font-size: 12px;color: #b1b3b9;margin-top: 1px">' + noticeTime + '</span>',
+                    area: '300px;',
+                    shade: 0.8,
+                    id: 'layuimini-notice',
+                    btn: [ '确定'],
+                    btnAlign: 'c',
+                    moveType: 1,
+                    content: html,
+                    success: function (layero) {
+                        var btn = layero.find('.layui-layer-btn');
+                        btn.find('.layui-layer-btn0').attr({
+                            // href: 'https://gitee.com/zhongshaofa/layuimini',
+                            target: '_blank'
+                        });
+                    }
+                });
+            });
+
+            /**
+             * 报表功能1
+             */
+            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+            var optionRecords = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['本部', '增城']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['{$time[0]}', '{$time[1]}', '{$time[2]}', '{$time[3]}','{$time[4]}', '{$time[5]}', '{$time[6]}']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '本部',
+                        type: 'line',
+                        data: [{$benbu[0]}, {$benbu[1]}, {$benbu[2]}, {$benbu[3]}, {$benbu[4]}, {$benbu[5]}, {$benbu[6]}]
+                    },
+                    {
+                        name:'增城',
+                        type:'line',
+                        data:[{$zc[0]}, {$zc[1]}, {$zc[2]}, {$zc[3]}, {$zc[4]}, {$zc[5]}, {$zc[6]}]
+                    }
+                ]
+            };
+            echartsRecords.setOption(optionRecords);
+            
+            
+            // echarts 窗口缩放自适应
+            window.onresize = function () {
+                echartsRecords.resize();
+            }
+
+        });
+    </script>
+</body>
+
+</html>
