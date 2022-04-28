@@ -76,7 +76,7 @@ class Index extends BaseController
             $newMenuInfo[]=$va;
         }
         $menuInfo=$newMenuInfo;
-        
+
         $systemInit = [
             'homeInfo' => $homeInfo,
             'logoInfo' => $logoInfo,
@@ -96,8 +96,4 @@ class Index extends BaseController
         return $data;
         // dump($data);
     }
-
-    // public function noAult(){
-    //     return view('404');
-    // }
 }

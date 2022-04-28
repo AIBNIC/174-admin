@@ -19,6 +19,10 @@ class Check
 		}
 
 		//获取到当前类和方法名进行权限判断
+		if(session('role_id')==0){
+			return $next($request);
+		}
+		
 		$controller=Request()->controller();
 		$action=Request()->action();
 		$url = $controller . '/' . $action;
