@@ -19,12 +19,12 @@ class Check
 		}
 
 		//获取到当前类和方法名进行权限判断
-		if(session('role_id')==0){
+		if (session('role_id') == 0) {
 			return $next($request);
 		}
-		
-		$controller=Request()->controller();
-		$action=Request()->action();
+
+		$controller = Request()->controller();
+		$action = Request()->action();
 		$url = $controller . '/' . $action;
 		$role = new Role();
 		$ault = $role->getRoleAuth(session('role_id'));
@@ -40,9 +40,9 @@ class Check
 		return $next($request);
 	}
 
-	public function error(){
-        
-        $response=view(Config::get('app.exception_error_tmpl'));
-        throw new HttpResponseException($response);
-    }
+	public function error()
+	{
+		$response = view(Config::get('app.exception_error_tmpl'));
+		throw new HttpResponseException($response);
+	}
 }

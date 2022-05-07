@@ -53,8 +53,9 @@ class Index extends BaseController
             'href'  => 'index/welcome',
         ];
         $logoInfo = [
-            'title' => 'LAYUI MINI',
-            'image' => 'http://thinkphp5.1-layuimini/layuimini/images/favicon.ico',
+            'title' => '网管后台',
+            'image' => 'http://127.0.0.1:8000/static/images/logo.jpg',
+            'href' => 'index'
         ];
         $menu = new MenuModel();
         $role=new RoleModel();

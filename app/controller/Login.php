@@ -57,6 +57,8 @@ class Login extends BaseController
 		}
 	}
 
+
+	//退出登录
 	public function outLogin(){
 		session('id',null);
 		return $this->returnJson(1,'退出成功');

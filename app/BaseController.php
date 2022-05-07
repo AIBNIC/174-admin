@@ -105,5 +105,8 @@ abstract class BaseController
         return JSON($value);
     }
 
-    
+    //权限判断
+    public function checkRole(){
+        
+    }
 }
