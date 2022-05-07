@@ -27,6 +27,7 @@ return [
         '_JS_' => '/static/JS',
         '_LIB_' => '/static/lib',
         '_API_' => '/static/api',
-        '_COMMON_' => '/common'
+        '_COMMON_' => '/common',
+        '_IMG_' => '/static/images',
     ]
 ];
