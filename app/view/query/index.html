@@ -1,63 +1,186 @@
 {include file="public/header" /}
 <link rel="stylesheet" href="_CSS_/query.css">
 </head>
+
 <body id='query'>
 	<div class="layui-row ">
-		<fieldset class="table-search-fieldset">
-            <div style="margin: 10px 10px 10px 10px;text-align: center;" >
-                <form class="layui-form layui-form-pane" action="">
-                    <div class="layui-form-item">
-                        <div class="layui-inline">
-                            <div class="layui-input-inline">
-                                <input type="text" name="username" autocomplete="off" class="layui-input">
-                            </div>
-                        </div>
-                        <div class="layui-inline">
-                            <button type="submit" class="layui-btn layui-btn-primary"  lay-submit lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </fieldset>
-		<div class="layui-col-md3 layui-col-md-offset4 msg" >
-			<div style="text-align: center; padding-top: 10px;">
-				<img src="_IMG_/tx.png" alt="" id="touxiang">
+		<fieldset class="table-search-fieldset layui-col-md4 " style="width:100% ; ">
+			<div style="margin: 10px 10px 10px 10px;text-align: center;">
+				<form class="layui-form layui-form-pane" action="">
+					<div class="layui-form-item">
+						<div class="layui-inline">
+							<div class="layui-input-inline" >
+								<input type="text" name="xuehao" class="layui-input" >
+							</div>
+						</div>
+						<div class="layui-inline">
+							<button type="button" class="layui-btn layui-btn-primary" lay-submit lay-filter="*"><i
+									class="layui-icon"></i> 搜 索</button>
+						</div>
+					</div>
+				</form>
 			</div>
-			<table>
-				<tbody>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>姓&nbsp名</td>
-						<td></td>
-					</tr>
-					<tr></tr>
-					<tr></tr>
-					<tr></tr>
-					<tr></tr>
-					<tr></tr>
-					<tr></tr>
-				</tbody>
-			</table>
+		</fieldset>
+		<div class="layui-col-md4 layui-col-md-offset4 msg" style="display: none;" id="xinxi">
+			<div style="text-align: center; padding-top: 10px;">
+				<!-- <img src="_IMG_/tx.png" alt="" id="touxiang"> -->
+				<h3>用户信息</h3>
+			</div>
+			<div class="layui-form" lay-filter="formTest">
+
+				<div class="layui-form-item">
+					<label class="layui-form-label">姓名</label>
+					<div class="layui-input-block">
+						<input type="text" name="username" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+
+				<div class="layui-form-item">
+					<label class="layui-form-label">学号</label>
+					<div class="layui-input-block">
+						<input type="text" name="xh" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+
+				<div class="layui-form-item">
+					<label class="layui-form-label">身份证</label>
+					<div class="layui-input-block">
+						<input type="text" name="userid" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+
+				<div class="layui-form-item">
+					<label class="layui-form-label">班级</label>
+					<div class="layui-input-block">
+						<input type="text" name="class" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+
+				<div class="layui-form-item">
+					<label class="layui-form-label">宿舍</label>
+					<div class="layui-input-block">
+						<input type="text" name="room" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">链路</label>
+					<div class="layui-input-block">
+						<input type="text" name="lianlu" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">开网时间</label>
+					<div class="layui-input-block">
+						<input type="text" name="start_time" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">到期时间</label>
+					<div class="layui-input-block">
+						<input type="text" name="old_time" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">安朗Ip</label>
+					<div class="layui-input-block">
+						<input type="text" name="ip" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">安朗key</label>
+					<div class="layui-input-block">
+						<input type="text" name="abmsKey" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">EnKey</label>
+					<div class="layui-input-block">
+						<input type="text" name="EnKey" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+
+				<!-- 按钮区 -->
+				<div class="btn">
+					<div class="layui-btn-group" style="text-align: center; margin: 10px;">
+						<button type="button" class="layui-btn layui-btn" lay-submit lay-filter="room">更改宿舍</button>
+						<button type="button" class="layui-btn layui-btn-normal">更改链路</button>
+						<button type="button" class="layui-btn layui-btn-warm">下线安朗账号</button>
+						<button type="button" class="layui-btn layui-btn-danger">报故障</button>
+					</div>
+
+					{if session('role_id') eq '0'}
+					<button type="button" class="layui-btn layui-btn-danger">一键删除用户</button>
+					<button type="button" class="layui-btn layui-btn-warm">更改时间</button>
+					<button type="button" class="layui-btn layui-btn-normal">批量更改时间</button>
+					{/if}
+				</div>
+			</div>
 		</div>
 	</div>
 </body>
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use(['form', 'jquery', 'layer'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer;
+
+		form.on('submit(*)', function (data) {
+			data = data.field;
+			$.ajax({
+				url: 'userInfo',
+				data: data,
+				type: 'get',
+				success(res) {
+					if (res.code == 1) {
+						$("#xinxi").show();
+						data = res.data;
+						form.val("formTest", {
+							"username": data.name,
+							"xh": data.xh,
+							"userid": data.userid,
+							"class": data.class,
+							"room": data.room,
+							"lianlu": data.lianlu,
+							"start_time": data.start_time,
+							"old_time": data.old_time,
+							"ip": data.ip,
+							"abmsKey": data.abmsKey,
+							"EnKey": data.EnKey
+						});
+					}
+					else if(res.code==0){
+						console.log('sss');
+					}
+					else{
+						window.location.href="{:url('Query/editRoom')}";
+					}
+
+				}
+			})
+		})
+
+		form.on('submit(room)', function (data) {
+			var data = form.val("formTest");
+			var url='editRoom?xh='+data.xh;
+			$.ajax({
+				url: "{:url('Query/editRoom')}",
+				// data: xuehao,
+				type: 'post',
+				success(res) {
+					var data=res.data;
+					layer.open({
+						type: 2,
+						title: "修改宿舍",
+						// area :'500px',
+						offset: 'auto',
+						content: url
+					})
+					// window.location.href="{:url('Query/editRoom')}";
+				}
+			})
+		})
+	})
+</script>
+
 </html>

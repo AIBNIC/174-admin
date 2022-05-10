@@ -15,7 +15,7 @@ class Check
 	{
 		//验证是否登录
 		if (!session('?id')) {
-			return redirect('login');
+			return redirect(url('Login/index'));
 		}
 
 		//获取到当前类和方法名进行权限判断
@@ -31,7 +31,7 @@ class Check
 
 		$menu = new Menu();
 		$aultHref = $menu->getHref($ault);
-		if ($controller != 'Index' && $url != 'Login/login') {
+		if ($controller != 'Index' && $url != 'Login/index') {
 			if (!in_array($url, $aultHref)) {
 				$this->error();
 				// echo'ceshi';
