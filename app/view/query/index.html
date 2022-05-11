@@ -9,8 +9,8 @@
 				<form class="layui-form layui-form-pane" action="">
 					<div class="layui-form-item">
 						<div class="layui-inline">
-							<div class="layui-input-inline" >
-								<input type="text" name="xuehao" class="layui-input" >
+							<div class="layui-input-inline">
+								<input type="text" name="xuehao" class="layui-input">
 							</div>
 						</div>
 						<div class="layui-inline">
@@ -87,6 +87,12 @@
 					</div>
 				</div>
 				<div class="layui-form-item">
+					<label class="layui-form-label">上线时间</label>
+					<div class="layui-input-block">
+						<input type="text" name="abms_time" autocomplete="off" class="layui-input" disabled="disabled">
+					</div>
+				</div>
+				<div class="layui-form-item">
 					<label class="layui-form-label">安朗key</label>
 					<div class="layui-input-block">
 						<input type="text" name="abmsKey" autocomplete="off" class="layui-input" disabled="disabled">
@@ -103,14 +109,15 @@
 				<div class="btn">
 					<div class="layui-btn-group" style="text-align: center; margin: 10px;">
 						<button type="button" class="layui-btn layui-btn" lay-submit lay-filter="room">更改宿舍</button>
-						<button type="button" class="layui-btn layui-btn-normal">更改链路</button>
+						<button type="button" class="layui-btn layui-btn-normal" lay-submit
+							lay-filter="ll">更改链路</button>
 						<button type="button" class="layui-btn layui-btn-warm">下线安朗账号</button>
 						<button type="button" class="layui-btn layui-btn-danger">报故障</button>
 					</div>
 
 					{if session('role_id') eq '0'}
 					<button type="button" class="layui-btn layui-btn-danger">一键删除用户</button>
-					<button type="button" class="layui-btn layui-btn-warm">更改时间</button>
+					<button type="button" class="layui-btn layui-btn-warm" lay-submit lay-filter="time">更改时间</button>
 					<button type="button" class="layui-btn layui-btn-normal">批量更改时间</button>
 					{/if}
 				</div>
@@ -120,10 +127,11 @@
 </body>
 <script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
 <script>
-	layui.use(['form', 'jquery', 'layer'], function () {
+	layui.use(['form', 'jquery', 'layer', 'laydate'], function () {
 		var $ = layui.jquery,
 			form = layui.form,
-			layer = layui.layer;
+			layer = layui.layer,
+			laydate = layui.laydate;
 
 		form.on('submit(*)', function (data) {
 			data = data.field;
@@ -145,15 +153,18 @@
 							"start_time": data.start_time,
 							"old_time": data.old_time,
 							"ip": data.ip,
+							'abms_time': data.abms_time,
 							"abmsKey": data.abmsKey,
 							"EnKey": data.EnKey
 						});
 					}
-					else if(res.code==0){
-						console.log('sss');
+					else if (res.code == 0) {
+						layer.msg(res.msg);
 					}
-					else{
-						window.location.href="{:url('Query/editRoom')}";
+					else if (res.code == 3) {
+						var url = 'editRoom?xh=' + res.data;
+						layer.msg(res.msg);
+						setTimeout(window.location.href = url, 2000)
 					}
 
 				}
@@ -162,13 +173,13 @@
 
 		form.on('submit(room)', function (data) {
 			var data = form.val("formTest");
-			var url='editRoom?xh='+data.xh;
+			var url = 'editRoom?xh=' + data.xh;
 			$.ajax({
 				url: "{:url('Query/editRoom')}",
 				// data: xuehao,
 				type: 'post',
 				success(res) {
-					var data=res.data;
+					var data = res.data;
 					layer.open({
 						type: 2,
 						title: "修改宿舍",
@@ -177,6 +188,53 @@
 						content: url
 					})
 					// window.location.href="{:url('Query/editRoom')}";
+				}
+			})
+		})
+
+
+		form.on('submit(ll)', function (data) {
+			var data = form.val("formTest");
+			// var url='ModifyGroupid?xh='+data.xh;
+			var lianlu = data.lianlu;
+			layer.open({
+				title: "修改链路",
+				content: '是否确定将该用户的链路修改为  ' + (lianlu == '电信' ? '移动' : '电信'),
+				// content:lianlu,
+				yes: function (index) {
+					var groupid
+					if (lianlu == '电信') {
+						groupid = 1
+					}
+					else {
+						groupid = 2
+					}
+					console.log(groupid);
+					$.ajax({
+						url: 'ModifyGroupid',
+						data: { 'groupid': groupid, 'xh': data.xh },
+						type: 'post',
+						success(res) {
+							console.log('suss');
+							layer.msg(res);
+						}
+					})
+				}
+			})
+		})
+
+		form.on('submit(time)', function (data) {
+			var data = form.val("formTest");
+			// var html="<form action=''><div class='layui-row'><div class='layui-col-md12' style='text-align:center;'><label class='layui-form-label' style='width:90px ;'>到期时间:</label><input type='text' class='layui-input' id='time'></div></div>"
+			// 	html+="<div class='layui-row'><div class='layui-col-md12' style='text-align:center;'><label class='layui-form-label' style='width:90px ;'>enkey</label><input type='text' class='layui-input' name='enkey'></div></div></form>"
+			// html+="<script>layui.use('laydate', function () {var laydate = layui.laydate;laydate.render({elem: '#time'});});<//script>"
+			layer.open({
+				type: 2,
+				title: "修改用户到期时间",
+				content: 'ModifyLimitdate',
+				btn:['确定'],
+				btn1: function (index, layero) {
+					var time=$('#time').val();
 				}
 			})
 		})

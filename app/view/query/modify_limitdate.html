@@ -1,0 +1,38 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+
+<body>
+	<form action="">
+		<div class="layui-row" style="margin-top:20px ;">
+			<div class="layui-form-item" style="text-align:center;">
+				<label class="layui-form-label">到期时间</label>
+				<div class="layui-input-block">
+					<input type="text" name="abmsKey"  class="layui-input" id="time">
+				</div>
+			</div>
+		</div>
+
+		<div class='layui-row' style="margin-top:20px ;">
+			<div class="layui-form-item">
+				<label class="layui-form-label">enkey</label>
+				<div class="layui-input-block">
+					<input type="text" name="abmsKey" class="layui-input" >
+				</div>
+			</div>
+		</div>
+	</form>
+</body>
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use('laydate', function () {
+		var laydate = layui.laydate;
+
+		//执行一个laydate实例
+		laydate.render({
+			elem: '#time' //指定元素
+		});
+	});
+</script>
+
+</html>

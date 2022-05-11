@@ -5,7 +5,6 @@ namespace app\model;
 use think\Model;
 use app\model\Abms  as AbmsModel;
 
-
 class Students extends Model
 {
 	protected $table = 'xyw_user';
@@ -14,12 +13,10 @@ class Students extends Model
 
 	public function getStudents($xuehao)
 	{
-		$data = $this->where("xuehao", $xuehao)->whereor("username", $xuehao)->find()->toArray();
-		// if (session('role_id') != 0) {
-		// 	foreach ($data as $key => &$stu) {
-		// 		unset($stu['userid']);
-		// 	}
-		// }
+		$data = $this->where("xuehao", $xuehao)->whereor("username", $xuehao)->find();
+		if($data!=''){
+			$data=$data->toArray();
+		}
 		return $data;
 	}
 
@@ -43,23 +40,26 @@ class Students extends Model
 
 	public function getRoom($id)
 	{
-		$data=$this->table('xyw_room')->where('id',$id)->find()->toArray();
+		$data = $this->table('xyw_room')->where('id', $id)->find()->toArray();
 		return $data;
 	}
 
 	//获取宿舍列表
-	public function getAllRoom(){
-		$data=$this->table('xyw_room')->select()->toArray();
-		$lh=$this->table('xyw_room')->group("lh")->column('lh');
+	public function getAllRoom()
+	{
+		$data = $this->table('xyw_room')->select()->toArray();
+		$lh = $this->table('xyw_room')->group("lh")->column('lh');
 		return $lh;
 	}
-	public function getAllfh($lh){
-		$fh=$this->table('xyw_room')->where('lh',$lh)->order('fh')->field('id,lh,fh')->select()->toArray();
+	public function getAllfh($lh)
+	{
+		$fh = $this->table('xyw_room')->where('lh', $lh)->order('fh')->field('id,lh,fh')->select()->toArray();
 		return $fh;
 	}
 	//更新宿舍
-	public function editRoom($xuehao,$room,$lh='',$fh=''){
-		$data=$this->where('xuehao',$xuehao)->update(['room'=>$room,'lh'=>$lh,'fh'=>$fh]);
+	public function editRoom($xuehao, $room, $lh = '', $fh = '')
+	{
+		$data = $this->where('xuehao', $xuehao)->update(['room' => $room, 'lh' => $lh, 'fh' => $fh]);
 		// ['room'=>$updata['room'],'lh'=>$updata['lh'],'fh'=>$updata['fh']];
 		return $data;
 	}
@@ -75,6 +75,12 @@ class Students extends Model
 	{
 		$abms = new AbmsModel();
 		$data = $abms->getUserInfo($xuehao);
+		return $data;
+	}
+
+	public function ModifyUserInfo($userid, $groupid=-1, $limitdate_end = '', $pwd = ''){
+		$abms = new AbmsModel();
+		$data = $abms->ModifyUserInfo2($userid, $groupid, $limitdate_end, $pwd);
 		return $data;
 	}
 }
