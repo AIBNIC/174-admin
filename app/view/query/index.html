@@ -111,12 +111,14 @@
 						<button type="button" class="layui-btn layui-btn" lay-submit lay-filter="room">更改宿舍</button>
 						<button type="button" class="layui-btn layui-btn-normal" lay-submit
 							lay-filter="ll">更改链路</button>
-						<button type="button" class="layui-btn layui-btn-warm">下线安朗账号</button>
-						<button type="button" class="layui-btn layui-btn-danger">报故障</button>
+						<button type="button" class="layui-btn layui-btn-warm" lay-submit
+							lay-filter="offUser">下线安朗账号</button>
+						<button type="button" class="layui-btn layui-btn-danger" lay-submit
+							lay-filter="add">报故障</button>
 					</div>
 
 					{if session('role_id') eq '0'}
-					<button type="button" class="layui-btn layui-btn-danger">一键删除用户</button>
+					<button type="button" class="layui-btn layui-btn-danger" lay-submit lay-filter="del">一键删除用户</button>
 					<button type="button" class="layui-btn layui-btn-warm" lay-submit lay-filter="time">更改时间</button>
 					<button type="button" class="layui-btn layui-btn-normal">批量更改时间</button>
 					{/if}
@@ -215,8 +217,13 @@
 						data: { 'groupid': groupid, 'xh': data.xh },
 						type: 'post',
 						success(res) {
-							console.log('suss');
-							layer.msg(res);
+							if (res.code == 1) {
+								layer.msg(res.msg);
+							}
+							else {
+								layer.msg(res.msg);
+							}
+
 						}
 					})
 				}
@@ -232,12 +239,105 @@
 				type: 2,
 				title: "修改用户到期时间",
 				content: 'ModifyLimitdate',
-				btn:['确定'],
+				btn: ['确定'],
 				btn1: function (index, layero) {
-					var time=$('#time').val();
+					var data = form.val("formTest");
+					var body = layer.getChildFrame('body', index); //子窗口对象
+					var time = body.find('#time').val();
+					var enkey = body.find('#enkey').val();
+					$.ajax({
+						url: 'ModifyLimitdate',
+						data: {
+							'xh': data.xh,
+							'old_time': time,
+							'enkey': enkey,
+						},
+						type: 'post',
+						success(res) {
+							layer.msg(res.msg);
+							if (res.code == 1) {
+
+								layer.closeAll('iframe');
+								window.setTimeout(function () {
+									window.location.reload();
+								}, 2000);
+							}
+
+						}
+					})
 				}
 			})
 		})
+
+		form.on('submit(offUser)', function (data) {
+			layer.open({
+				title: "下线安朗账号"
+				, content: "确定下线该用户安朗账号？"
+				, yes: function (data) {
+					var data = form.val("formTest");
+					$.ajax({
+						url: 'offLineUser',
+						data: {
+							'userid': data.xh
+						},
+						type: 'get',
+						success(res) {
+							layer.msg(res.msg);
+							if (res.code == 1) {
+								layer.closeAll('iframe');
+							}
+
+						}
+					})
+				}
+
+			})
+		})
+
+		form.on('submit(del)', function (data) {
+			layer.open({
+				title: "删除用户"
+				, content: "确定删除该用户吗?"
+				, yes: function (data) {
+					var data = form.val("formTest");
+					$.ajax({
+						url: 'CardDelUser'
+					})
+				}
+			})
+		})
+
+		form.on('submit(add)', function (data) {
+			layer.open({
+				title: "报故障"
+				, type: 2
+				, content: "addFault"
+				, btn: ['确定']
+				, btn1: function (index, layero) {
+					var data = form.val("formTest");
+					var body = layer.getChildFrame('body', index);
+					var faultType = body.find('#faultType').val();
+					var faultText = body.find('#faultText').val();
+					$.ajax({
+						url: 'addFault',
+						data: {
+							'faultType': faultType,
+							'faultText': faultText,
+							'xh': data.xh
+						},
+						type: 'post',
+						success(res) {
+							layer.msg(res.msg);
+							if (res.code == 1) {
+								layer.closeAll('iframe');
+							}
+						}
+					})
+				}
+			})
+		})
+
+
 	})
 </script>
 

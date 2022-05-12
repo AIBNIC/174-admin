@@ -1,0 +1,31 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+
+
+<body>
+	<form action="" style="margin: 20px;" class="layui-form">
+		<div class="layui-row" style="margin-top:20px ;">
+			<div class="layui-form-item">
+				<label class="layui-form-label">故障类型</label>
+				<div class="layui-input-block">
+					<select name="faultType" id="faultType" lay-verify="">
+						<option value="其他故障">其他故障</option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+		<div class='layui-row' style="margin-top:20px ;">
+			<div class="layui-form-item">
+				<label class="layui-form-label">故障描述</label>
+				<div class="layui-input-block">
+					<textarea name="info" rows="3" class="layui-textarea" id="faultText"></textarea>
+				</div>
+			</div>
+		</div>
+	</form>
+</body>
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
+</html>

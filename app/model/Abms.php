@@ -2,6 +2,7 @@
 
 namespace app\model;
 
+use SoapFault;
 use think\Model;
 
 class Abms
@@ -29,22 +30,33 @@ class Abms
 	 * @param string $pwd    [密码]
 	 * @return  Array
 	 */
-	public function ModifyUserInfo2($userid, $groupid =-1, $limitdate_end = '', $pwd = '')
+	public function ModifyUserInfo2($userid, $groupid = -1, $limitdate_end = '', $pwd = '')
+	{
+		try {
+			$client = new \SoapClient($this->wsdl);
+			//一堆安朗接口参数
+			$userstate = '1';
+			$teamid = 0;
+			$username = '';
+			$phone = '';
+			$address = '';
+			$opendate = '';
+			$notes = '';
+			// $float = '';
+			$remain_fee = 0.0;
+			$certNum = '';
+
+			$result = $client->ModifyUserInfo3($userid, $groupid, $teamid, $pwd, $username, $phone, $address, $limitdate_end, $userstate, $opendate, $notes, $remain_fee, $certNum);
+			return $result;
+		} catch (SoapFault $e) {
+			return 0;
+		}
+	}
+
+	public function offLineUser($userid)
 	{
 		$client = new \SoapClient($this->wsdl);
-		//一堆安朗接口参数
-		$userstate = '1';
-		$teamid = 0;
-		$username = '';
-		$phone = '';
-		$address = '';
-		$opendate = '';
-		$notes = '';
-		// $float = '';
-		$remain_fee = 0.0;
-		$certNum = '';
-
-		$result = $client->ModifyUserInfo3($userid, $groupid, $teamid, $pwd, $username,$phone,$address, $limitdate_end, $userstate, $opendate, $notes, $remain_fee, $certNum);
+		$result = $client->offLineUser($userip = '', $usermac = '', $userid);
 		return $result;
 	}
 }

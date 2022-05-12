@@ -3,6 +3,7 @@
 namespace app\controller;
 
 use app\BaseController;
+use app\model\Fault as FaultModel;
 use app\model\User as UserModel;
 use app\model\Students as StudentsModel;
 use think\Request;
@@ -20,8 +21,8 @@ class Query extends BaseController
 		return view();
 	}
 
-/*
-* [getUserInfo 获取安朗用户信息  [基础功能完成，还需完善表校验]]
+	/*
+* [getUserInfo 获取安朗用户信息  [完成]]
 * @param string $xuehao       [学号或姓名]
 * @return  JSON
 */
@@ -60,10 +61,13 @@ class Query extends BaseController
 
 		//安朗信息
 		$rs = $this->abmsUserInfo($stu['xuehao']);
+		if($rs==0){
+			return $this->returnJson(0,'安朗接口卡了,请再按一下搜索');
+		}
 		$rt = $this->abmsIp($stu['xuehao']);
-		// $rs[6]  到期时间
-		// dump($rt);
+		// dump($rs);
 		// exit;
+		$old_time=$rs['6']==$abms['old_time']?$abms['old_time']:$rs['6'];
 
 
 		if (session('role_id') != 0) {
@@ -78,7 +82,7 @@ class Query extends BaseController
 			'room' => $roomName,
 			'lianlu' => $rs[1] == 1 ? '移动' : '电信',
 			'start_time' => $abms['start_time'],
-			'old_time' => $abms['old_time'],
+			'old_time' => $old_time,
 			'ip' => $rt['ip'],
 			'abms_time' => $rt['start_time'],
 			'abmsKey' => $rs[14],
@@ -130,13 +134,13 @@ class Query extends BaseController
 	}
 
 	//通过学号查询安朗信息
-	public function abmsUserInfo($xuehao)
+	protected function abmsUserInfo($xuehao)
 	{
 		$student = new StudentsModel();
 		$rs = $student->getAbms($xuehao);
 		return $rs;
 	}
-	public function abmsIp($xuehao)
+	protected function abmsIp($xuehao)
 	{
 		$rules = [    //采集规则
 			'user' => ['', 'text']
@@ -178,22 +182,83 @@ class Query extends BaseController
 		}
 	}
 
+	//修改到期时间
 	public function ModifyLimitdate(Request $request)
 	{
 		$reData = $request->post();
 		// $userid = $reData['xh'];
 		// $limitdate_end = $reData['old_time'];
-
-		if (empty($reData['xh'])) {
-			// return $this->returnJson(0, '学号传参错误');
+		if (empty($reData)) {
 			return view();
 		}
-		if (empty($limitdate_end)) {
-			$html='';
+		if (!isset($reData['xh']) or !isset($reData['old_time']) or !isset($reData['enkey'])) {
+			return $this->returnJson(0, '传参错误');
+
 		}
+		$userid = $reData['xh'];
+		$limitdate_end = $reData['old_time']." 23:59:59";
+		$enkey = $reData['enkey'];
+		$groupid=-1;   //用户组，-1为不做修改
+
+		// echo $userid, $limitdate_end, $enkey;
+
+		$student=new StudentsModel();
+		$data=$student->ModifyUserInfo($userid,$groupid,$limitdate_end);
+		if($data==0){
+			return $this->returnJson(0, '安朗修改错误');
+		}
+		$stu=$student->editTime($userid,$limitdate_end,$enkey);
+		if($stu==0){
+			return $this->returnJson(0, '数据表更新错误');
+		}
+		return $this->returnJson(1, '修改成功');
+	}
+	//下线安朗用户
+	public function offLineUser($userid){
+		if(empty($userid)){
+			return $this->returnJson(0,'传参错误');
+		}
+		$student=new StudentsModel();
+		$data=$student->offLineUser($userid);
+		$msg=$data==1?'下线成功':'下线失败';
+		return $this->returnJson($data,$msg);
 	}
 
-	public function ceshi()
-	{
+	//添加故障
+	public function addFault(Request $request){
+		$reData=$request->post();
+		if(empty($reData)){
+			return view();
+		}
+		$userid=$reData['xh'];
+		$faultname=$reData['faultType'];
+		$faultcontent=$reData['faultText'];
+
+		if(!isset($userid) or !isset($faultname)){
+			return $this->returnJson(0,'传参出错，学号与类型为必填');
+		}
+
+		$stu=new StudentsModel();
+		$room=$stu->getRoomName($userid);
+		
+		$fault=new FaultModel();
+		$faultArr=[
+			'faultname'=>$faultname,
+			'create_time'=>date('Y-m-d G:i:s'),
+			'faultcontent'=>$faultcontent,
+			'userid'=>$userid,
+			'lh'=>$room['lh'],
+			'fh'=>$room['fh']
+		];
+
+		$data=$fault->addFault($faultArr);
+		$msg=$data==1?'添加故障成功':'添加故障失败';
+		return $this->returnJson($data,$msg);
 	}
+
+	//删除用户
+	public function CardDelUser($userid){
+
+	}
+
 }

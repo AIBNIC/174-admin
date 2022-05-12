@@ -67,4 +67,10 @@ class Fault extends Model
 		}
 		return $newTime;
 	}
+
+
+	public function addFault($faultArr){
+		$data=$this->insert($faultArr);
+		return $data;
+	}
 }

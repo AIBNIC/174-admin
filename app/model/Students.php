@@ -38,10 +38,22 @@ class Students extends Model
 		}
 	}
 
+	//根据宿舍id获取宿舍楼号和房号
 	public function getRoom($id)
 	{
 		$data = $this->table('xyw_room')->where('id', $id)->find()->toArray();
 		return $data;
+	}
+
+	//根据学号查询宿舍楼号和房号
+	public function getRoomName($xuehao){
+		$room=$this->where('xuehao',$xuehao)->value('room');
+		$data=$this->table('xyw_room')->where('id',$room)->field('lh,fh')->find()->toArray();
+		// if(empty($data)){
+		// 	$data=$data;
+		// }
+		return $data;
+
 	}
 
 	//获取宿舍列表
@@ -64,9 +76,15 @@ class Students extends Model
 		return $data;
 	}
 
+	//获取安朗表的用户信息
 	public function getTime($xuehao)
 	{
 		$data = $this->table('xyw_abms_user')->where('xuehao', $xuehao)->whereor("username", $xuehao)->find()->toArray();
+		return $data;
+	}
+	//修改安朗表用户到期时间
+	public function editTime($xuehao,$old_time,$enkey){
+		$data=$this->table('xyw_abms_user')->where('xuehao', $xuehao)->update(['old_time'=>$old_time,'EnKey'=>$enkey]);
 		return $data;
 	}
 
@@ -77,10 +95,16 @@ class Students extends Model
 		$data = $abms->getUserInfo($xuehao);
 		return $data;
 	}
-
+	//修改安朗用户组、到期时间、密码
 	public function ModifyUserInfo($userid, $groupid=-1, $limitdate_end = '', $pwd = ''){
 		$abms = new AbmsModel();
 		$data = $abms->ModifyUserInfo2($userid, $groupid, $limitdate_end, $pwd);
+		return $data;
+	}
+
+	public function offLineUser($userid){
+		$abms = new AbmsModel();
+		$data=$abms->offLineUser($userid);
 		return $data;
 	}
 }
