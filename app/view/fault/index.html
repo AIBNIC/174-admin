@@ -1,3 +1,126 @@
 {include file="public/header" /}
 <link rel="stylesheet" href="_CSS_/query.css">
+<style>
+	.layui-table-cell {
+		font-size: 14px;
+		padding: 0 5px;
+		height: auto;
+		overflow: visible;
+		text-overflow: inherit;
+		white-space: normal;
+		word-break: break-all;
+	}
+</style>
 </head>
+
+<body>
+	<div class="layuimini-container">
+		<div class="layuimini-main">
+			<blockquote class="layui-elem-quote">
+				故障列表
+			</blockquote>
+			<form action="" style="margin: 10px;" class="layui-form">
+				<div class="layui-row" style="margin-top:20px ;">
+					<div class="layui-form-item layui-col-md2">
+						<label class="layui-form-label">宿舍楼筛选</label>
+						<div class="layui-input-block">
+							<select name="lh" id="lhxz" lay-filter="test">
+								{foreach $lh as $key => $vo}
+								<option value="{$vo}">{$vo}</option>
+								{/foreach}
+							</select>
+						</div>
+					</div>
+				</div>
+			</form>
+
+			<div>
+				<table id="demo" lay-filter="test"></table>
+			</div>
+		</div>
+	</div>
+
+
+
+</body>
+<script type="text/html" id="toolbarDemo">
+	<div class="layui-btn-container">
+	  <button class="layui-btn layui-btn-sm" lay-event="delete">一键删除故障</button>
+	</div>
+</script>
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use(['table', 'jquery', 'layer', 'form'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer,
+			table = layui.table;
+
+		table.render({
+			elem: '#demo',
+			height: 'full-20',
+			toolbar: '#toolbarDemo',
+			url: "{:url('fault/faultList')}",
+			// with:500,
+			page: false,
+			cols: [[
+				{ type: 'checkbox' }
+				, { field: 'id', title: '序号', width: 80 }
+				, { field: 'username', title: '姓名', width: 80 }
+				, { field: 'lh', title: '楼号', width: 80 }
+				, { field: 'fh', title: '房号', width: 80 }
+				, { field: 'userid', title: '学号' }
+				, { field: 'faultcontent', title: '故障描述' }
+				, { field: 'create_time', title: '登记时间' }
+			]]
+		})
+
+		//筛选楼号重载表格
+		form.on('select(test)', function (data) {
+			lh = data.value;
+			table.reload('demo', {
+				url: "{:url('fault/faultList?lh=')}" + lh
+				, type: 'post'
+			})
+			console.log(lh)
+		});
+
+		table.on('toolbar(test)', function (obj) {
+			var checkStatus = table.checkStatus(obj.config.id);
+			if (obj.event == 'delete') {
+				layer.confirm('确定删除这些故障？', function (index) {
+					var tableData = table.checkStatus('demo').data; //获取选中的数据
+					var idArr = [];
+					var lhArr=[];
+					// console.log(tableData);
+					for (var i = 0; i < tableData.length; i++) {
+						idArr.push(tableData[i].id);
+						lhArr.push(tableData[i].lh);
+					}
+
+					$.ajax({
+						url: "{:url('fault/delFault')}"
+						, type: 'post'
+						, data: {
+							'id': idArr,
+							'lh':lhArr
+						}
+						, success(res) {
+							layer.msg(res.msg);
+							if (res.code == 1) {
+								window.setTimeout(function () {
+									layer.closeAll();
+									window.location.reload();
+								}, 2000);
+							}
+						}
+					})
+				})
+			}
+		})
+
+
+	})
+</script>
+
+</html>

@@ -1,0 +1,159 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+
+<body>
+	<div class="layuimini-container">
+		<div class="layuimini-main">
+			<blockquote class="layui-elem-quote">
+				用户列表
+			</blockquote>
+			<div>
+				<table id="userTable" lay-filter="table"></table>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/html" id="UsertoolbarDemo"> <!--  头部工具栏 -->
+<div class="layui-btn-container">
+	<button class="layui-btn layui-btn-sm" lay-event="delete">批量删除</button>
+	<button class="layui-btn layui-btn-sm" lay-event="add">添加用户</button>
+	<button class="layui-btn layui-btn-sm" lay-event="adds">批量添加</button>
+</div>
+</script>
+<script type="text/html" id="barDemo"> <!--  列工具栏 -->
+<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+
+<script>
+	layui.use(['table', 'jquery', 'layer', 'form'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer,
+			table = layui.table;
+
+		table.render({
+			elem: '#userTable',
+			height: 'full-20',
+			toolbar: '#UsertoolbarDemo',
+			url: "{:url('System/userList')}",
+			// with:500,
+			page: false,
+			cols: [[
+				{ type: 'checkbox' }
+				, { field: 'id', title: '序号', width: 80 }
+				, { field: 'username', title: '账号' }
+				, { field: 'pwd', title: '密码' }
+				, { field: 'name', title: '昵称' }
+				, { field: 'emali', title: '邮箱' }
+				, { field: 'roleName', title: '角色' }
+				, { field: 'role_id', title: '角色id', hide: true }
+				, { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150 }
+				// 
+			]]
+		})
+
+		//监听行工具栏
+		table.on('tool(table)', function (obj) {
+			var data = obj.data;
+			if (obj.event === 'edit') {
+				// console.log(data);
+				layer.open({
+					title: "用户编辑"
+					, type: 2
+					, content: "{:url('System/editUser')}"
+					, success: function (layero, index) {
+						layer.iframeAuto(index);
+						var body = layer.getChildFrame('body', index);
+						var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+						// console.log(body.html()) //得到iframe页的body内容
+						body.find('#userId').val(data.id);
+						body.find('#userName').val(data.username);
+						body.find('#userPwd').val(data.pwd);
+						body.find('#name').val(data.name);
+						body.find('#emali').val(data.emali);
+						body.find('#roleName').val(data.role_id);
+					}
+
+				})
+			}
+			if (obj.event === 'del') {
+				layer.open({
+					title: "删除用户"
+					, content: "确定删除此用户？"
+					, yes: function (index, layero) {
+						// console.log(data.id);
+						$.ajax({
+							url: "{:url('System/delUser')}"
+							, data: { 'id': data.id }
+							, type: 'post'
+							, success(res) {
+								if (res.code == 1) {
+									layer.msg(res.msg);
+									window.setTimeout(function () {
+										window.location.reload();
+									}, 2000);
+								}
+								else {
+									layer.msg('删除失败');
+								}
+							}
+						})
+					}
+				})
+			}
+		})
+
+
+		table.on('toolbar(table)', function (obj) {
+			var checkStatus = table.checkStatus(obj.config.id);  //获取选中行
+			var data = checkStatus.data;
+			switch (obj.event) {
+				case 'delete':
+					var idArr = [];
+					for (var i = 0; i < data.length; i++) {
+						idArr.push(data[i].id);
+					}
+
+					$.ajax({
+						url: "{:url('System/delUser')}"
+						, data: { 'id': idArr }
+						, type: 'post'
+						, success(res) {
+							if (res.code == 1) {
+								layer.msg(res.msg);
+								window.setTimeout(function () {
+									window.location.reload();
+								}, 2000);
+							}
+							else {
+								layer.msg('删除失败');
+							}
+						}
+					})
+
+					break;
+				case 'add':
+					layer.open({
+						title: "添加用户"
+						, type: 2
+						, content: "{:url('System/addUser')}"
+						,success:function(layero,index){
+							layer.iframeAuto(index);
+						}
+					})
+
+					break;
+				case 'adds':
+					layer.msg('批量添加用户');
+					break;
+			};
+		})
+
+	})
+</script>
+
+</html>

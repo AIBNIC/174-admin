@@ -90,7 +90,7 @@
                 }
 
                 $.ajax({
-                    url: 'checkLogin',
+                    url:" {:url('Login/checkLogin')}",
                     data: data,
                     type: 'post',
                     success(res) {

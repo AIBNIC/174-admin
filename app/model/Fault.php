@@ -6,8 +6,6 @@ use think\Model;
 
 class Fault extends Model
 {
-	// protected $table = 'table_name';
-	// protected $pk = 'id';
 	// protected $connection = 'db_config_174';
 	protected $connection = 'db_config_165';
 
@@ -68,9 +66,20 @@ class Fault extends Model
 		return $newTime;
 	}
 
+	//获取全部楼号
+	public function getlh(){
+		$data=$this->table('xyw_room')->group("lh")->column('lh');
+		return $data;
+	}
 
+	
 	public function addFault($faultArr){
 		$data=$this->insert($faultArr);
+		return $data;
+	}
+
+	public function delFault($id){
+		$data=$this->where('id',$id)->update(['state'=>'1','finish_time'=>date('Y-m-d G:i:s'),'finish_man'=>session('username')]);
 		return $data;
 	}
 }

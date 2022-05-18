@@ -19,7 +19,7 @@ class Check
 		}
 
 		//获取到当前类和方法名进行权限判断
-		if (session('role_id') == 0) {
+		if (session('role_id') == 1) {
 			return $next($request);
 		}
 

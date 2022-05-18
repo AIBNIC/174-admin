@@ -22,7 +22,7 @@ class Query extends BaseController
 	}
 
 	/*
-* [getUserInfo 获取安朗用户信息  [完成]]
+* [userInfo 获取安朗用户信息  [完成]]
 * @param string $xuehao       [学号或姓名]
 * @return  JSON
 */
@@ -61,13 +61,13 @@ class Query extends BaseController
 
 		//安朗信息
 		$rs = $this->abmsUserInfo($stu['xuehao']);
-		if($rs==0){
-			return $this->returnJson(0,'安朗接口卡了,请再按一下搜索');
+		if ($rs == 0) {
+			return $this->returnJson(0, '安朗接口卡了,请再按一下搜索');
 		}
 		$rt = $this->abmsIp($stu['xuehao']);
 		// dump($rs);
 		// exit;
-		$old_time=$rs['6']==$abms['old_time']?$abms['old_time']:$rs['6'];
+		$old_time = $rs['6'] == $abms['old_time'] ? $abms['old_time'] : $rs['6'];
 
 
 		if (session('role_id') != 0) {
@@ -193,72 +193,72 @@ class Query extends BaseController
 		}
 		if (!isset($reData['xh']) or !isset($reData['old_time']) or !isset($reData['enkey'])) {
 			return $this->returnJson(0, '传参错误');
-
 		}
 		$userid = $reData['xh'];
-		$limitdate_end = $reData['old_time']." 23:59:59";
+		$limitdate_end = $reData['old_time'] . " 23:59:59";
 		$enkey = $reData['enkey'];
-		$groupid=-1;   //用户组，-1为不做修改
+		$groupid = -1;   //用户组，-1为不做修改
 
 		// echo $userid, $limitdate_end, $enkey;
 
-		$student=new StudentsModel();
-		$data=$student->ModifyUserInfo($userid,$groupid,$limitdate_end);
-		if($data==0){
+		$student = new StudentsModel();
+		$data = $student->ModifyUserInfo($userid, $groupid, $limitdate_end);
+		if ($data == 0) {
 			return $this->returnJson(0, '安朗修改错误');
 		}
-		$stu=$student->editTime($userid,$limitdate_end,$enkey);
-		if($stu==0){
+		$stu = $student->editTime($userid, $limitdate_end, $enkey);
+		if ($stu == 0) {
 			return $this->returnJson(0, '数据表更新错误');
 		}
 		return $this->returnJson(1, '修改成功');
 	}
 	//下线安朗用户
-	public function offLineUser($userid){
-		if(empty($userid)){
-			return $this->returnJson(0,'传参错误');
+	public function offLineUser($userid)
+	{
+		if (empty($userid)) {
+			return $this->returnJson(0, '传参错误');
 		}
-		$student=new StudentsModel();
-		$data=$student->offLineUser($userid);
-		$msg=$data==1?'下线成功':'下线失败';
-		return $this->returnJson($data,$msg);
+		$student = new StudentsModel();
+		$data = $student->offLineUser($userid);
+		$msg = $data == 1 ? '下线成功' : '下线失败';
+		return $this->returnJson($data, $msg);
 	}
 
 	//添加故障
-	public function addFault(Request $request){
-		$reData=$request->post();
-		if(empty($reData)){
+	public function addFault(Request $request)
+	{
+		$reData = $request->post();
+		if (empty($reData)) {
 			return view();
 		}
-		$userid=$reData['xh'];
-		$faultname=$reData['faultType'];
-		$faultcontent=$reData['faultText'];
+		$userid = $reData['xh'];
+		$faultname = $reData['faultType'];
+		$faultcontent = $reData['faultText'];
 
-		if(!isset($userid) or !isset($faultname)){
-			return $this->returnJson(0,'传参出错，学号与类型为必填');
+		if (!isset($userid) or !isset($faultname)) {
+			return $this->returnJson(0, '传参出错，学号与类型为必填');
 		}
 
-		$stu=new StudentsModel();
-		$room=$stu->getRoomName($userid);
-		
-		$fault=new FaultModel();
-		$faultArr=[
-			'faultname'=>$faultname,
-			'create_time'=>date('Y-m-d G:i:s'),
-			'faultcontent'=>$faultcontent,
-			'userid'=>$userid,
-			'lh'=>$room['lh'],
-			'fh'=>$room['fh']
+		$stu = new StudentsModel();
+		$room = $stu->getRoomName($userid);
+
+		$fault = new FaultModel();
+		$faultArr = [
+			'faultname' => $faultname,
+			'create_time' => date('Y-m-d G:i:s'),
+			'faultcontent' => $faultcontent,
+			'userid' => $userid,
+			'lh' => $room['lh'],
+			'fh' => $room['fh']
 		];
 
-		$data=$fault->addFault($faultArr);
-		$msg=$data==1?'添加故障成功':'添加故障失败';
-		return $this->returnJson($data,$msg);
+		$data = $fault->addFault($faultArr);
+		$msg = $data == 1 ? '添加故障成功' : '添加故障失败';
+		return $this->returnJson($data, $msg);
 	}
 
 	//删除用户
-	public function CardDelUser($userid){
-
+	public function CardDelUser($userid)
+	{
 	}
-
 }

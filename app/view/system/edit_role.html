@@ -1,0 +1,105 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+<style>
+	.layui-form-label {
+		width: 40px;
+	}
+
+	.layui-input-block {
+		margin-left: 70px;
+	}
+</style>
+
+<body>
+	<form action="" style="text-align: center;" class="layui-form" lay-filter="formTest">
+
+		<div class="layui-row">
+			<div class="layui-form-item" style="text-align:center;">
+				<label class="layui-form-label">ID:</label>
+				<div class="layui-input-block">
+					<input type="text" name="RoleID" class="layui-input" id="RoleID" disabled="disabled">
+				</div>
+			</div>
+		</div>
+
+		<div class="layui-row">
+			<div class="layui-form-item" style="text-align:center;">
+				<label class="layui-form-label">名称</label>
+				<div class="layui-input-block">
+					<input type="text" name="roleName" class="layui-input" id="editRoleName">
+				</div>
+			</div>
+		</div>
+
+		<label class="layui-form-label">权限</label>
+		<div class="layui-row">
+
+			<div id="editRoleTree"></div>
+		</div>
+
+		<div class="layui-row">
+			<div class="layui-col-md4" style="text-align:center; margin-top: 10px;">
+				<button type="button" class="layui-btn" lay-submit lay-filter="*">确定</button>
+			</div>
+		</div>
+	</form>
+</body>
+
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use(['jquery', 'form', 'layer', 'tree'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer,
+			tree = layui.tree;
+
+		//获取到该角色的auth
+		var auth = sessionStorage.getItem('auth');
+		// console.log(auth);
+		auth = auth.split(' ');
+
+		var trees = [];
+		$.ajax({
+			url: "{:url('System/addRole')}"
+			, type: 'post'
+			, data: { 'option': 1 }
+			, async: false
+			, success(res) {
+				trees = res;
+			}
+		})
+
+		var inste1 = tree.render({
+			elem: '#editRoleTree'
+			, checkChirld: false  //是否关联子集菜单
+			, data: trees.data
+			, showCheckbox: true
+			, id: 'demoId' //定义索引
+		});
+		tree.setChecked('demoId', auth); //批量勾选 id 为 2、3 的节点
+
+		form.on('submit(*)', function (data) {
+			var data1 = form.val("formTest");
+			var checkData = tree.getChecked('demoId');
+			$.ajax({
+				url: "{:url('System/editRole')}"
+				, data: { 'option': 2, 'id_name': data1, 'auth': checkData }
+				, type: "post"
+				, success(res) {
+					layer.msg(res.msg);
+					if (res.code == 1) {
+						setTimeout(function closePage() {
+							var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+							parent.layer.close(index); //再执行关闭   
+						}, 2000);
+					}
+				}
+			})
+		})
+
+	})
+
+</script>
+
+</html>

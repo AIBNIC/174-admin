@@ -38,6 +38,11 @@ class Students extends Model
 		}
 	}
 
+	public function getUserName($xuehao){
+		$data=$this->where('xuehao', $xuehao)->field('username')->select()->toArray();
+		return $data;
+	}
+
 	//根据宿舍id获取宿舍楼号和房号
 	public function getRoom($id)
 	{

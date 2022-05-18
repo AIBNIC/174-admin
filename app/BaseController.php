@@ -7,6 +7,7 @@ namespace app;
 use think\App;
 use think\exception\ValidateException;
 use think\Validate;
+use app\model\Role as RoleModel;
 
 /**
  * 控制器基础类
@@ -104,9 +105,20 @@ abstract class BaseController
         }
         return JSON($value);
     }
-
-    //权限判断
-    public function checkRole(){
-        
+    public function LayuiTbaleJson($code,$msg='',$count,$data=[]){
+        if (empty($data)) {
+            $value = ['code' => $code, 'msg' => $msg,'count'=>$count];
+        }
+        else{
+            $value = ['code' => $code, 'msg' => $msg,'count'=>$count,'data'=>$data];
+        }
+        return JSON($value);
     }
+
+    //楼号权限判断
+    // public function checkRole($lh){
+    //     $role = new RoleModel();
+    //     $ault = $role->getRoleAuth(session('role_id')); 
+        
+    // }
 }

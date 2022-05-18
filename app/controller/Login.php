@@ -53,6 +53,7 @@ class Login extends BaseController
 			session('id',$info['id']);
 			session('name',$info['name']);
 			session('role_id',$info['role_id']);
+			session('username',$info['username']);
 			return $this->returnJson(1,'登录成功');
 		}
 	}
