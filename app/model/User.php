@@ -28,7 +28,13 @@ class User extends Model
 	}
 
 	public function addUser($data){
-		$data=$this->insert($data);
+		try{
+			$data=$this->insert($data);
+		}
+		catch(\Exception $e){
+			return 0;
+		}
+		
 		return $data;
 	}
 }

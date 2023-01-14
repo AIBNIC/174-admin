@@ -1,0 +1,74 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+
+<body>
+	<div class="layuimini-container">
+		<div class="layuimini-main">
+			<blockquote class="layui-elem-quote">
+				权限列表
+			</blockquote>
+			<!-- <form action="" style="margin: 10px;" class="layui-form">
+				<div class="layui-row" style="margin-top:20px ;">
+					<div class="layui-form-item layui-col-md3">
+						<label class="layui-form-label">筛选</label>
+						<div class="layui-input-block">
+							<select name="xz" id="xz" lay-filter="test">
+								<option value="1">控制器栏目</option>
+								<option value="2">楼号列表</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</form> -->
+			<div class="layui-form">
+				<div class="layui-col-md8">
+					<table id="auth" lay-filter="auth"></table>
+				</div>
+				<div class="layui-col-md4">
+					<table id="lhList" lay-filter="lhList"></table>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="_LIB_/layui-v2.6.3/layui.js"></script>
+<script>
+	layui.use(['table', 'jquery', 'layer', 'form'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer,
+			table = layui.table;
+
+		table.render({
+			elem: '#auth',
+			height: 'full-20',
+			toolbar: '#roletoolbarDemo',
+			url: "{:url('System/auth?option=1')}",
+			page: false,
+			cols: [[
+				, { field: 'id', title: 'id' }
+				, { field: 'pid', title: '父级栏目' }
+				, { field: 'title', title: '栏目名称' }
+				, { field: 'href', title: '栏目地址' }
+				, { field: 'status', title: '栏目状态' }
+			]]
+		})
+
+		table.render({
+			elem: '#lhList',
+			height: 'full-20',
+			toolbar: '#roletoolbarDemo',
+			url: "{:url('System/auth?option=2')}",
+			// with:500,
+			page: false,
+			cols: [[
+				, { field: 'id', title: 'id' }
+				, { field: 'lh', title: '楼号' }
+			]]
+		})
+	})
+</script>
+
+</html>

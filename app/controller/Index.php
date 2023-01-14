@@ -54,7 +54,7 @@ class Index extends BaseController
         ];
         $logoInfo = [
             'title' => '网管后台',
-            'image' => 'http://127.0.0.1:8000/static/images/logo.jpg',
+            'image' => "/static/images/logo.jpg",
             'href' => 'index'
         ];
         $menu = new MenuModel();

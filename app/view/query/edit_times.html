@@ -1,0 +1,49 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+
+<div style="padding: 50px; line-height: 22px; background-color: #72798e; color: #fff; font-weight: 300;">
+	操作步骤：<br><br>
+	下载模板<br>
+	填写数据参考模板中的数据（第一行的数据不用删）<br>
+	上传填写好的excel文件<br>
+	<br>
+	<a href="http://127.0.0.1:8000/static/document/model.xlsx" style="color: rgb(247, 11, 11);">点我下载模板</a><br><br>
+	<button type="button" class="layui-btn" id="test1">
+		<i class="layui-icon" name="excle">&#xe67c;</i>上传文件
+	</button>
+</div>
+
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use(['jquery', 'form', 'layer'], function () {
+		var upload = layui.upload,
+			$ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer;
+
+		//执行实例
+		var uploadInst = upload.render({
+			elem: '#test1' //绑定元素
+			, url: "{:url('Query/editTimes?option=1')}" //上传接口
+			, accept: 'file'
+			, done: function (res) {
+				if (res == 1) {
+					layer.msg(res.msg);
+					setTimeout(function closePage() {
+						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+						parent.layer.close(index); //再执行关闭   
+					}, 2000);
+				}
+				else {
+					layer.msg(res.msg);
+					console.log(res.msg);
+				}
+			}
+			// , error: function () {
+			// 	//请求异常回调
+			// 	layer.msg("上传失败");
+			// }
+		});
+	});
+</script>

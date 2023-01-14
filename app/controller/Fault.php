@@ -4,6 +4,7 @@ namespace app\controller;
 
 use app\BaseController;
 use app\model\Fault as FaultModel;
+use app\model\Role as RoleModel;
 use think\facade\Db;
 
 //故障控制器
@@ -36,17 +37,65 @@ class Fault extends BaseController
 		return JSON($data);
 	}
 
-	/* [delFault 删除故障  [权限判断未作]]
+	/* [delFault 删除故障  [完成]]
 	* @param array $id       [故障id]
 	* @return  JSON
 	*/
-	public function delFault($id,$lh)
+	public function delFault($id, $lh)
 	{
 		$fault = new FaultModel();
+		$role = new roleModel();
+		$auth = $role->getRoleAuth(session('role_id'));
+		$lhId = [];
+		foreach ($lh as $vo) {
+			$lhId[] = $role->lhId($vo);
+		}
+		if (session('role_id') != 1) {
+			foreach ($lhId as $vo) {
+				if (!in_array($vo, $auth)) {
+					return $this->returnJson(0, '你没有该栋的删除权限');
+				}
+			}
+		}
 		$result = [];
 		foreach ($id as $vo) {
 			$result[] = $fault->delFault($vo);
 		}
 		return $this->returnJson(1, '删除成功');
+	}
+
+	public function bbtj($option = 0)
+	{
+		if ($option == 0) {
+			return view();
+		}
+		$fault = new FaultModel();
+		if ($option == 1) {
+			$thisMonthBb = $fault->getBbTimeFault();
+			$lastMonthBb = $fault->getBbTimeFault('lastMonthBb');
+			$thisYear = $fault->getBbTimeFault('thisYear');
+			$lastYear = $fault->getBbTimeFault('lastYear');
+			$data = ['thisMonthBb' => $thisMonthBb, 'lastMonthBb' => $lastMonthBb, 'thisYear' => $thisYear, 'lastYear' => $lastYear];
+			$data['all'] = [array_sum($thisMonthBb), array_sum($lastMonthBb), array_sum($thisYear), array_sum($lastYear)];
+			return $this->returnJson(1, '获取成功', $data);
+		}
+	}
+
+	public function zctj($option = 0)
+	{
+		if ($option == 0) {
+			return view();
+		}
+		$fault = new FaultModel();
+		if ($option == 1) {
+			$thisMonthBb = $fault->getZcTimeFault();
+			// halt($thisMonthBb);
+			$lastMonthBb = $fault->getZcTimeFault('lastMonth');
+			$thisYear = $fault->getZcTimeFault('thisYear');
+			$lastYear = $fault->getZcTimeFault('lastYear');
+			$data = ['thisMonthBb' => $thisMonthBb, 'lastMonthBb' => $lastMonthBb, 'thisYear' => $thisYear, 'lastYear' => $lastYear];
+			$data['all'] = [array_sum($thisMonthBb), array_sum($lastMonthBb), array_sum($thisYear), array_sum($lastYear)];
+			return $this->returnJson(1, '获取成功', $data);
+		}
 	}
 }

@@ -29,5 +29,6 @@ return [
         '_API_' => '/static/api',
         '_COMMON_' => '/common',
         '_IMG_' => '/static/images',
+        '_FILE_' => '/static/file',
     ]
 ];

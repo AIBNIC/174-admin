@@ -16,9 +16,19 @@ class Abms
 	 */
 	public function getUserInfo($userid)
 	{
-		$client = new \SoapClient($this->wsdl);
-		$result = $client->getUserInfo($userid);
-		$result = explode("##", $result);
+		ini_set('default_socket_timeout', 5); //定义响应超时
+		try {
+			// $options = array(
+			// 	'cache_wsdl' => 0,
+			// 	'connection_timeout' => 5, //定义连接超时为5秒
+			// );
+			$client = new \SoapClient($this->wsdl, array('connection_timeout' => 5));
+			$result = $client->getUserInfo($userid);
+			$result = explode("##", $result);
+		} catch (\SoapFault $e) {
+			// return $e->getMessage();
+			return 0;
+		}
 		return $result;
 	}
 
@@ -48,15 +58,39 @@ class Abms
 
 			$result = $client->ModifyUserInfo3($userid, $groupid, $teamid, $pwd, $username, $phone, $address, $limitdate_end, $userstate, $opendate, $notes, $remain_fee, $certNum);
 			return $result;
-		} catch (SoapFault $e) {
+		} catch (\SoapFault $e) {
 			return 0;
 		}
 	}
 
+	/**
+	 * [offLineUser 下线安朗账号]
+	 * @param string $userid        [账号]
+	 * @return  1，0
+	 */
 	public function offLineUser($userid)
 	{
-		$client = new \SoapClient($this->wsdl);
-		$result = $client->offLineUser($userip = '', $usermac = '', $userid);
-		return $result;
+		try {
+			$client = new \SoapClient($this->wsdl);
+			$result = $client->offLineUser($userip = '', $usermac = '', $userid);
+			return $result;
+		} catch (\SoapFault $e) {
+			return 0;
+		}
+	}
+
+	/**
+	 * [CardDelUser 销户]
+	 * @param string $userid        [账号]
+	 * @return  1，0
+	 */
+	public function CardDelUser($userid){
+		try {
+			$client = new \SoapClient($this->wsdl);
+			$result = $client->CardDelUser($userid);
+			return $result;
+		} catch (\SoapFault $e) {
+			return 0;
+		}
 	}
 }

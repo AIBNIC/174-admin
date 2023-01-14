@@ -120,14 +120,65 @@
     </div>
     <script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
     <script src="_JS_/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script src="_JS_/echarts/echarts.js" charset="utf-8"></script>
     <script>
-        layui.use(['layer', 'miniTab', 'echarts'], function () {
+
+
+        layui.use(['layer', 'miniTab'], function () {
             var $ = layui.jquery,
                 layer = layui.layer,
-                miniTab = layui.miniTab,
-                echarts = layui.echarts;
+                miniTab = layui.miniTab;
 
             miniTab.listen();
+
+            /**
+             * 报表功能1
+             */
+             var date = '';
+        var turnover = '';
+        $.ajax({
+            url: "{:url('Wxpay/orderSummary?option=1')}"
+            , type: 'post'
+            , async: false
+            , success: function (res) {
+                date = res.data.date;
+                turnover = res.data.turnover;
+            }
+        })
+            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
+            var optionRecords = {
+                
+            xAxis: {
+                // type: 'category',
+                data: date
+            },
+            yAxis: {
+                type: 'value'
+            },
+            tooltip: {
+                trigger: "axis",
+                position: function (p) { //其中p为当前鼠标的位置
+                    return [p[0] + 10, p[1]];
+                },
+                extraCssText: 'width:77px;height:50px;',
+            },
+            series: [
+                {
+                    data: turnover,
+                    type: 'line',
+                }
+            ]
+            };
+            echartsRecords.setOption(optionRecords);
+            
+            
+            // echarts 窗口缩放自适应
+            window.onresize = function () {
+                echartsRecords.resize();
+            }
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
 
             /**
              * 查看公告信息
@@ -159,58 +210,6 @@
                     }
                 });
             });
-
-            /**
-             * 报表功能1
-             */
-            var echartsRecords = echarts.init(document.getElementById('echarts-records'), 'walden');
-            var optionRecords = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['本部', '增城']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['{$time[0]}', '{$time[1]}', '{$time[2]}', '{$time[3]}','{$time[4]}', '{$time[5]}', '{$time[6]}']
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [
-                    {
-                        name: '本部',
-                        type: 'line',
-                        data: [{$benbu[0]}, {$benbu[1]}, {$benbu[2]}, {$benbu[3]}, {$benbu[4]}, {$benbu[5]}, {$benbu[6]}]
-                    },
-                    {
-                        name:'增城',
-                        type:'line',
-                        data:[{$zc[0]}, {$zc[1]}, {$zc[2]}, {$zc[3]}, {$zc[4]}, {$zc[5]}, {$zc[6]}]
-                    }
-                ]
-            };
-            echartsRecords.setOption(optionRecords);
-            
-            
-            // echarts 窗口缩放自适应
-            window.onresize = function () {
-                echartsRecords.resize();
-            }
-
         });
     </script>
 </body>

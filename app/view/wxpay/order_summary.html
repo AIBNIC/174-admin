@@ -1,0 +1,104 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+<style>
+	.tongji {
+		padding: 10px;
+	}
+
+	.tongji div {
+		height: 300px;
+		width: auto;
+	}
+</style>
+
+<body>
+	<div class="layui-fluid">
+		<blockquote class="layui-elem-quote">
+			收款记录
+		</blockquote>
+		<div class="layui-row">
+			<div class="layui-col-md12 tongji">
+				<div id="os"></div>
+			</div>
+		</div>
+		<div class="layui-row">
+			<div class="layui-col-md12">
+				<table id="osTable" lay-filter="osTable"></table>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="_JS_/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+	layui.use(['layer', 'echarts', 'jquery', 'form', 'laydate'], function () {
+		var $ = layui.jquery,
+			layer = layui.layer,
+			form = layui.form,
+			echarts = layui.echarts
+		table = layui.table;
+
+		var date = '';
+		var turnover = '';
+		$.ajax({
+			url: "{:url('orderSummary?option=1')}"
+			, type: 'post'
+			, async: false
+			, success: function (res) {
+				date = res.data.date;
+				turnover = res.data.turnover;
+			}
+		})
+		// console.log(turnover);
+
+		var echartsDataset = echarts.init(document.getElementById('os'), 'walden');
+		var option = {
+			title: {
+				text: '近14天收款记录'
+			},
+			xAxis: {
+				// type: 'category',
+				data: date
+			},
+			yAxis: {
+				type: 'value'
+			},
+			tooltip: {
+				trigger: "axis",
+				position: function (p) { //其中p为当前鼠标的位置
+					return [p[0] + 10, p[1]];
+				},
+				extraCssText: 'width:77px;height:50px;',
+			},
+			series: [
+				{
+					data: turnover,
+					type: 'line',
+				}
+			]
+		};
+		echartsDataset.setOption(option);
+
+		table.render({
+			elem: '#osTable',
+			height: 'full-20',
+			url: "{:url('Wxpay/orderSummary?option=2')}",
+			page: true,
+
+			limit: 20,
+			cols: [[
+				{ field: 'id', title: '序号', width: '25%' }
+				, { field: 'date', title: '日期', width: '25%' }
+				, { field: 'order_num', title: '订单数	', width: '25%' }
+				, { field: 'turnover', title: '	金额(元)', width: '25%' }
+			]],
+			done: function (res, curr, count) {
+				$("#osTable").css("width", "100%");
+			}
+		})
+	})
+</script>
+
+</html>

@@ -2,6 +2,10 @@
 
 namespace app\controller;
 
+// use PhpOffice\PhpSpreadsheet\Spreadsheet;
+// use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 use app\BaseController;
 use app\model\Role as RoleModel;
 use app\model\User as UserModel;
@@ -10,6 +14,7 @@ use think\Request;
 
 class System extends BaseController
 {
+	protected $middleware = [\app\middleware\Check::class];
 	public function index()
 	{
 		return view();
@@ -19,8 +24,11 @@ class System extends BaseController
 		$role = new RoleModel();
 		$user = new UserModel();
 		$userList = $user->getAllAdmin();
-		foreach ($userList as $vo) {
+		foreach ($userList as &$vo) {
 			$vo['roleName'] = $role->getRoleName($vo['role_id']);
+			if($vo['role_id']==1){
+				$vo['pwd']='****';
+			}
 		}
 		return JSON(['code' => 0, 'msg' => '获取成功', 'count' => count($userList), 'data' => $userList]);
 	}
@@ -64,10 +72,10 @@ class System extends BaseController
 		return $this->returnJson(1, '添加成功');
 	}
 
-	public function addUsers($data = '')
-	{
-		return '没编写';
-	}
+	// public function addUsers($data = '')
+	// {
+	// 	return '没编写';
+	// }
 
 	public function role()
 	{
@@ -101,6 +109,16 @@ class System extends BaseController
 					$vo['children'] = [];
 				}
 			}
+			$role = new RoleModel();
+			$lh = $role->allLh();
+			// foreach($lh as $key=>$vo){
+			// 	$vo['title']=$vo['lh'];
+			// }
+			for ($i = 0; $i < count($lh); $i++) {
+				$lh[$i]['title'] = $lh[$i]['lh'];
+				unset($lh[$i]['lh']);
+			}
+			array_push($menuList, ['id' => 100, 'title' => '楼号选择', 'children' => $lh]);
 			return $this->returnJson(1, '获取成功', $menuList);
 			// return $menuList;
 		}
@@ -153,9 +171,9 @@ class System extends BaseController
 		}
 		$role = new RoleModel();
 		$data = $request->post();
-
+		/***
 		if ($option == 1) {
-			/***
+			
 			 *      ┌─┐       ┌─┐
 			 *   ┌──┘ ┴───────┘ ┴──┐
 			 *   │                 │
@@ -184,7 +202,7 @@ class System extends BaseController
 			 * 		  本项目中的layui.js已改
 			 * 		  友情提示:改为layui.js记得ctrl+F5强制刷新页面,有缓存(泪崩^)
 			 * 		  解决方案中最后一部我注释掉了，不知为何加上后还是会有bug
-			 */
+			 
 			$auth = $data['auth'];
 			$auth = explode(' ', trim($auth));
 			if (count($auth) == 1) {
@@ -241,32 +259,32 @@ class System extends BaseController
 			}
 			return JSON($resultTree);
 		}
+		*/
+
 
 		if ($option == 2) {
 			$id = $data['id_name']['RoleID'];
 			$name = $data['id_name']['roleName'];
 			$auth = $data['auth'];
 			//取出$auth中所有id，注：此处应用递归，我偷懒了，三维以上数组就要修改
-			foreach($auth as $vo){
-				$authId[]=$vo['id'];
-				if(!empty($vo['children'])){
-					foreach($vo['children'] as $sonvo){
-						$authId[]=$sonvo['id'];
+			foreach ($auth as $vo) {
+				$authId[] = $vo['id'];
+				if (!empty($vo['children'])) {
+					foreach ($vo['children'] as $sonvo) {
+						$authId[] = $sonvo['id'];
 					}
 				}
 			}
 			sort($authId);
-			$authId_str=implode(' ',$authId);
-			$RoleArr=['id'=>$id,'role_name'=>$name,'auth'=>$authId_str];
-			$role=new  RoleModel();
-			$result=$role->editRole($RoleArr);
-			if($result==1){
-				return $this->returnJson(1,'修改成功');
+			$authId_str = implode(' ', $authId);
+			$RoleArr = ['id' => $id, 'role_name' => $name, 'auth' => $authId_str];
+			$role = new  RoleModel();
+			$result = $role->editRole($RoleArr);
+			if ($result == 1) {
+				return $this->returnJson(1, '修改成功');
+			} else {
+				return $this->returnJson(0, '修改失败');
 			}
-			else{
-				return $this->returnJson(0,'修改失败');
-			}
-			
 		}
 	}
 
@@ -282,8 +300,89 @@ class System extends BaseController
 		}
 		return $id;
 	}
-	// 	function arrayUdiffMore($a, $b)
-	// 	{
-	// 		return strcmp(implode("", $a), implode("", $b));
-	// 	}
+
+	public function auth($option = 0)
+	{
+		if ($option == 0) {
+			return view();
+		}
+		if ($option == 1) {
+			$menu = new MenuModel();
+			$data = $menu->getMenuList(5);
+			$result = [];
+			foreach ($data as $key => $vo) {
+				if ($vo['pid'] == 0) {
+					$result[] = $vo;
+				}
+				if ($vo['pid'] != 0) {
+					$vo['title'] = '|---' . $vo['title'];
+					$site = array_search($vo['pid'], array_column($result, 'id'));
+					$old = array_splice($result, $site + 1);
+					array_push($result, $vo);
+					$result = array_merge($result, $old);
+				}
+			}
+			return $this->LayuiTbaleJson(0, '获取成功', count($result), $result);
+		}
+		if ($option == 2) {
+			$role = new RoleModel();
+			$data = $role->allLh();
+			return $this->LayuiTbaleJson(0, '获取成功', count($data), $data);
+		}
+	}
+
+	public function userAdds($option = 0)
+	{
+		if($option==0){
+			return view();
+		}
+		$file=request()->file();
+		validate(['file' => [
+			'fileExt'  => 'xlsx,xls,csv'
+		]])->check(['file' => $file]);
+		$savename = \think\facade\Filesystem::disk('public')->putFile('topic', $file['file']);
+		$savename='static\\document\\'.$savename;
+		$savename=str_replace("/",'\\',$savename);
+		
+		$reader=IOFactory::createReader('Xlsx');
+		$spreadsheet = $reader-> load($savename);
+		// halt($spreadsheet);
+
+		$sheet = $spreadsheet-> getActiveSheet();
+		$link=$sheet->getHighestRow();   //总行数
+		
+		if($link<=2){
+			return $this->returnJson(0,'失败，没有数据');
+		}
+		
+		$data=[];
+		for ($row = 3; $row <= $link-2; $row++){
+			$user['username'] = $sheet->getCellByColumnAndRow(1, $row)->getValue();
+			$user['pwd'] = $sheet->getCellByColumnAndRow(2, $row)->getValue();
+			$user['name'] = $sheet->getCellByColumnAndRow(3, $row)->getValue();
+			$user['role_id'] = $sheet->getCellByColumnAndRow(4, $row)->getValue();
+			$user['updata_time'] = date("Y-m-d G:i:s");
+			$data[]=$user;
+		}
+		$userMd=new UserModel();
+		$result=[];
+		foreach($data as $vo){
+			$result[]=$userMd->addUser($vo);
+		}
+		if(!in_array(0,$result)){
+			return $this->returnJson(1,'全部添加成功');
+		}
+		else{
+			$erroSum=0;
+			$errKey=[];
+			foreach($result as $key=>$vo){
+				if($vo==0){
+					$erroSum+=1;
+					$errKey[]=$key+1;
+				}
+			}
+			$errKey=implode(',',$errKey);
+			return $this->returnJson(0,'有位'.$erroSum.'没能添加成功，分别是第'.$errKey.'位');
+		}
+	}
 }

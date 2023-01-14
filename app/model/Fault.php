@@ -18,38 +18,39 @@ class Fault extends Model
 	}
 
 	/**
-     * 首页报表统计
-     * @param float $iszc 校区，默认增城
-     */
+	 * 首页报表统计
+	 * @param float $iszc 校区，默认增城
+	 */
 	public function chart($iszc = true)
 	{
 
 		//获取过去7天时间
-		$time=$this->getData();
+		$time = $this->getData();
 		// return $time;
 
 		//增城校区最近七天故障统计
 		if ($iszc == true) {
-			for($a=0;$a<7;$a++){
-				$data[$a]=$this->where('lh','like','北区%')->whereDay('create_time', $time[$a])->count('id');
+			for ($a = 0; $a < 7; $a++) {
+				$data[$a] = $this->where('lh', 'like', '北区%')->whereDay('create_time', $time[$a])->count('id');
 			}
 			return $data;
 		}
 		if ($iszc == false) {
-			for($a=0;$a<7;$a++){
-				$data[$a]=$this->where('lh','like','%楼')->whereDay('create_time', $time[$a])->count('id');
+			for ($a = 0; $a < 7; $a++) {
+				$data[$a] = $this->where('lh', 'like', '%楼')->whereDay('create_time', $time[$a])->count('id');
 			}
 			return $data;
 		}
 	}
 
 	/**
-     * 查询过去时间
-     * @param int $query 查询时间，默认7
+	 * 查询过去时间
+	 * @param int $query 查询时间，默认7
 	 *  @param string $mwdy  查询单位，默认日
 	 * *  @param string $format  输出格式，默认Y-m-d
-     */
-	public function getData($query=7,$mwdy='days',$format='Y-m-d'){
+	 */
+	public function getData($query = 7, $mwdy = 'days', $format = 'Y-m-d')
+	{
 		$time = [];
 		for ($a = 0; $a < $query; $a++) {
 			if ($a == 0) {
@@ -59,27 +60,89 @@ class Fault extends Model
 		}
 
 		//将时间反过来
-		$newTime=[];
-		for($i=count($time)-1;$i>=0;$i--){     
-			$newTime[]=$time[$i];
+		$newTime = [];
+		for ($i = count($time) - 1; $i >= 0; $i--) {
+			$newTime[] = $time[$i];
 		}
 		return $newTime;
 	}
 
 	//获取全部楼号
-	public function getlh(){
-		$data=$this->table('xyw_room')->group("lh")->column('lh');
+	public function getlh()
+	{
+		$data = $this->table('xyw_room')->group("lh")->column('lh');
 		return $data;
 	}
 
-	
-	public function addFault($faultArr){
-		$data=$this->insert($faultArr);
+
+	public function addFault($faultArr)
+	{
+		$data = $this->insert($faultArr);
 		return $data;
 	}
 
-	public function delFault($id){
-		$data=$this->where('id',$id)->update(['state'=>'1','finish_time'=>date('Y-m-d G:i:s'),'finish_man'=>session('username')]);
+	public function delFault($id)
+	{
+		$data = $this->where('id', $id)->update(['state' => '1', 'finish_time' => date('Y-m-d G:i:s'), 'finish_man' => session('username')]);
+		return $data;
+	}
+
+	public function getBbTimeFault($time = 'thisMonthBb')
+	{
+		$lh = $this->table('xyw_room')->where('lh', 'like', '%楼')->group("lh")->column('lh');
+		unset($lh[0]);
+		unset($lh[1]);
+		unset($lh[2]);
+		unset($lh[9]);
+		if ($time == 'thisMonthBb') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereMonth('create_time')->count();
+			}
+		}
+		if ($time == 'lastMonthBb') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereMonth('create_time', 'last month')->count();
+			}
+		}
+		if ($time == 'thisYear') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereYear('create_time')->count();
+			}
+		}
+		if ($time == 'lastYear') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereYear('create_time', 'last year')->count();
+			}
+		}
+		return $data;
+	}
+
+	public function getZcTimeFault($time = 'thisMonth')
+	{
+		$lh = $this->table('xyw_room')->where('lh', 'like', '北区%')->group("lh")->column('lh');
+		// unset($lh[4]);
+		// unset($lh[5]);
+		// unset($lh[6]);
+		if ($time == 'thisMonth') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereMonth('create_time')->count();
+			}
+		}
+		if ($time == 'lastMonth') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereMonth('create_time', 'last month')->count();
+			}
+		}
+		if ($time == 'thisYear') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereYear('create_time')->count();
+			}
+		}
+		if ($time == 'lastYear') {
+			foreach ($lh as $vo) {
+				$data[] = $this->where('lh', $vo)->whereYear('create_time', 'last year')->count();
+			}
+		}
 		return $data;
 	}
 }

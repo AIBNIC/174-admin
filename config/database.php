@@ -85,9 +85,9 @@ return [
             // 服务器地址
             'hostname'        =>'211.66.88.165',
             // 数据库名
-            'database'        => 'xyw',
+            'database'        => 'new_xyw',
             // 用户名
-            'username'        =>'xyw',
+            'username'        =>'new_xyw',
             // 密码
             'password'        => '***REMOVED***',
             // 端口
@@ -98,6 +98,28 @@ return [
             'charset'         => env('database.charset', 'utf8'),
             // 数据库表前缀
             'prefix'          => 'xyw_',
-        ]
+        ],
+
+        //已废弃
+        'db_config_178' => [
+            // 数据库类型
+            'type' => 'mysql',
+            // 服务器地址
+            'hostname' => '211.66.88.165',
+            // 数据库名
+            'database' => 'order',
+            // 数据库用户名
+            'username' => 'xyw_order',
+            // 数据库密码
+            'password' => '***REMOVED***',
+            // 数据库编码默认采用utf8
+            'charset' => 'utf8',
+            // 数据库表前缀
+            'prefix' => '',
+            // 端口
+            'hostport'        => '3306',
+            // 连接dsn
+            'dsn'             => '',
+            ],
     ],
 ];

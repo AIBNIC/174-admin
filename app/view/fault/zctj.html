@@ -1,0 +1,205 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+<style>
+	.tongji {
+		padding: 10px;
+	}
+
+	.tongji div {
+		height: 300px;
+		width: auto;
+	}
+</style>
+
+<body>
+	<div class="layui-fluid">
+		<blockquote class="layui-elem-quote">
+			增城故障统计
+		</blockquote>
+		<div class="layui-row">
+			<div class="layui-col-md6 tongji">
+				<div id="thisMonthBb"></div>
+			</div>
+			<div class="layui-col-md6 tongji">
+				<div id="lastMonthBb"></div>
+			</div>
+		</div>
+		<div class="layui-row">
+			<div class="layui-col-md6 tongji">
+				<div id="thisYear"></div>
+			</div>
+			<div class="layui-col-md6 tongji">
+				<div id="lastYear"></div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="_JS_/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+	layui.use(['layer', 'echarts', 'jquery'], function () {
+		var $ = layui.jquery,
+			layer = layui.layer,
+			echarts = layui.echarts;
+
+
+		var data;
+		$.ajax({
+			url: "{:url('zctj?option=1')}"
+			, type: 'get'
+			, async: false
+			, success: function (res) {
+				data = res.data;
+			}
+		})
+		console.log(data);
+
+		var echartsDataset = echarts.init(document.getElementById('thisMonthBb'), 'walden');
+		var option = {
+			color: ["#3398DB"],
+			title: {
+				text: '本月各宿舍楼故障统计-'+data.all[0]
+			},
+			tooltip: {
+				trigger: "axis",
+				position: function (p) { //其中p为当前鼠标的位置
+					return [p[0] + 10, p[1]];
+				},
+				extraCssText: 'width:160px;height:50px;',
+				axisPointer: {
+					type: "shadow"
+				}
+			},
+			grid: {},
+			xAxis: [{
+				type: "category",
+				data: ["北区13栋A", "北区13栋B", "北区14栋A", "北区14栋B","北区16栋A","北区16栋B", "北区16栋C","北区18栋", "北区19栋", "北区20栋", "北区21栋", "北区22栋", "北区23栋", "北区24栋", "北区25栋", "北区26栋", "北区27栋"],
+				axisTick: {
+					alignWithLabel: true
+				}
+			}],
+			yAxis: [{
+				type: "value"
+			}],
+			series: [{
+				name: "故障数",
+				type: "bar",
+				barWidth: "60%",
+				data: data.thisMonthBb
+			}]
+		}
+		echartsDataset.setOption(option);
+
+		var echartsDataset = echarts.init(document.getElementById('lastMonthBb'), 'walden');
+		var option1 = {
+			color: ["#3398DB"],
+			title: {
+				text: '上月各宿舍楼故障统计-'+data.all[1]
+			},
+			tooltip: {
+				trigger: "axis",
+				position: function (p) { //其中p为当前鼠标的位置
+					return [p[0] + 10, p[1]];
+				},
+				extraCssText: 'width:160px;height:50px;',
+				axisPointer: {
+					type: "shadow"
+				}
+			},
+			grid: {},
+			xAxis: [{
+				type: "category",
+				data: ["北区13栋A", "北区13栋B", "北区14栋A", "北区14栋B","北区16栋A","北区16栋B","北区16栋C", "北区18栋", "北区19栋", "北区20栋", "北区21栋", "北区22栋", "北区23栋", "北区24栋", "北区25栋", "北区26栋", "北区27栋"],
+				axisTick: {
+					alignWithLabel: true
+				}
+			}],
+			yAxis: [{
+				type: "value"
+			}],
+			series: [{
+				name: "故障数",
+				type: "bar",
+				barWidth: "60%",
+				data: data.lastMonthBb
+			}]
+		}
+		echartsDataset.setOption(option1);
+
+		var echartsDataset = echarts.init(document.getElementById('thisYear'), 'walden');
+		var option2 = {
+			color: ["#3398DB"],
+			title: {
+				text: '今年各宿舍楼故障统计-'+data.all[2]
+			},
+			tooltip: {
+				trigger: "axis",
+				position: function (p) { //其中p为当前鼠标的位置
+					return [p[0] + 10, p[1]];
+				},
+				extraCssText: 'width:160px;height:50px;',
+				axisPointer: {
+					type: "shadow"
+				}
+			},
+			grid: {},
+			xAxis: [{
+				type: "category",
+				data: ["北区13栋A", "北区13栋B", "北区14栋A", "北区14栋B","北区16栋A","北区16栋B", "北区16栋C","北区18栋", "北区19栋", "北区20栋", "北区21栋", "北区22栋", "北区23栋", "北区24栋", "北区25栋", "北区26栋", "北区27栋"],
+				axisTick: {
+					alignWithLabel: true
+				}
+			}],
+			yAxis: [{
+				type: "value"
+			}],
+			series: [{
+				name: "故障数",
+				type: "bar",
+				barWidth: "60%",
+				data: data.thisYear
+			}]
+		}
+		echartsDataset.setOption(option2);
+
+		var echartsDataset = echarts.init(document.getElementById('lastYear'), 'walden');
+		var option3 = {
+			color: ["#3398DB"],
+			title: {
+				text: '去年各宿舍楼故障统计-'+data.all[3]
+			},
+			tooltip: {
+				trigger: "axis",
+				position: function (p) { //其中p为当前鼠标的位置
+					return [p[0] + 10, p[1]];
+				},
+				extraCssText: 'width:160px;height:50px;',
+				axisPointer: {
+					type: "shadow"
+				}
+			},
+			grid: {},
+			xAxis: [{
+				type: "category",
+				data: ["北区13栋A", "北区13栋B", "北区14栋A", "北区14栋B", "北区16栋A","北区16栋B","北区16栋C","北区18栋", "北区19栋", "北区20栋", "北区21栋", "北区22栋", "北区23栋", "北区24栋", "北区25栋", "北区26栋", "北区27栋"],
+				axisTick: {
+					alignWithLabel: true
+				}
+			}],
+			yAxis: [{
+				type: "value"
+			}],
+			series: [{
+				name: "故障数",
+				type: "bar",
+				barWidth: "60%",
+				data: data.lastYear
+			}]
+		}
+		echartsDataset.setOption(option3);
+
+	})
+</script>
+
+</html>

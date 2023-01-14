@@ -33,13 +33,21 @@ class Menu extends Model
             foreach($menuList as &$vo){
                 $vo['checked']='false';
             }
-            return $menuList;   
+            return $menuList;  
         }
         if($option==4){
             $menuList = $this
             ->field('id,pid,title')
             ->select()->toArray();
             return $menuList;  
+        }
+        if($option==5){
+            $menuList = $this
+            ->field('id,pid,title,href,status')
+            ->order('pid asc')
+            ->select()
+            ->toArray();
+            return $menuList; 
         }
         $menuList = $this->buildMenuChild(0, $menuList);
         return $menuList;

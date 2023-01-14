@@ -54,6 +54,14 @@
 				type: 2
 				, title: '添加角色'
 				, content: "{:url('System/addRole')}"
+				, success: function (layero, index) {
+					layer.iframeAuto(index);
+				}
+				, end: function () {
+					window.setTimeout(function () {
+						window.location.reload();
+					}, 1000);
+				}
 			})
 		})
 
@@ -93,8 +101,11 @@
 						body.find('#editRoleName').val(data.role_name);
 						body.find('#RoleID').val(data.id);
 					}
-					,end:function(){
+					, end: function () {
 						sessionStorage.removeItem("auth");
+						window.setTimeout(function () {
+							window.location.reload();
+						}, 1000);
 					}
 
 				})

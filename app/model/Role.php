@@ -45,4 +45,13 @@ class Role extends Model
 		$data=$this->where('id',$data['id'])->update($data);
 		return $data;
 	}
+
+	public function allLh(){
+		$data=$this->table('admin_lh')->select();
+		return $data;
+	}
+	public function lhId($name){
+		$data=$this->table('admin_lh')->where('lh',$name)->field('id')->find();
+		return $data['id'];
+	}
 }

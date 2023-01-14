@@ -1,0 +1,202 @@
+{include file="public/header" /}
+<link rel="stylesheet" href="_CSS_/query.css">
+</head>
+<style>
+	.layui-form-label {
+		width: 300px !important;
+		text-align: center !important;
+
+	}
+
+	.layui-table-cell {
+		height: auto;
+		white-space: normal;
+		word-wrap: break-word;
+	}
+</style>
+
+<body>
+	<div class="layuimini-container">
+		<div class="layuimini-main">
+			<blockquote class="layui-elem-quote">
+				微信订单下载
+			</blockquote>
+		</div>
+		<form action="" class="layui-form ">
+			<div class="layui-form-item layui-row">
+				<label class="layui-form-label">订单日期范围</label>
+				<div class="layui-col-md4">
+					<input type="text" id="orderDate" class="layui-input" name="orderDate">
+				</div>
+			</div>
+
+			<div class="layui-form-item layui-row">
+				<label class="layui-form-label">商品名/学号/商户订单/微信订单</label>
+				<div class="layui-col-md6">
+					<input type="text" name="search" class="layui-input" id="" placeholder="支持模糊搜索">
+				</div>
+			</div>
+			<div class="layui-form-item layui-row" style="padding-left: 5%;">
+				<input type="radio" name="r3" value="0" title="全部">
+				<input type="radio" name="r3" value="1" title="开网">
+				<input type="radio" name="r3" value="2" title="网费">
+			</div>
+			<div class="layui-form-item layui-row" style="text-align: center;">
+				<button class="layui-btn" type="button" lay-submit lay-filter="*">搜索</button>
+				<button class="layui-btn" type="button" lay-submit lay-filter="Refresh">刷新页面</button>
+				<a class="layui-btn" href="{:url('Query/index')}">用户查询</a>
+			</div>
+		</form>
+
+		<div>
+			<table id="orderTable" lay-filter="orderTable"></table>
+			<span id="result"></span>
+		</div>
+		<table id="verifyTable" lay-filter="verifyTable"></table>
+		<span id="verifyResult"></span>
+	</div>
+
+</body>
+<script type="text/html" id="orderToolbarDemo">
+	<div class="layui-btn-container">
+	  <button class="layui-btn layui-btn-sm" lay-event="add">批量对账查询</button>
+	</div>
+</script>
+
+<script type="text/html" id="orderBarDemo">
+	<a class="layui-btn layui-btn-xs" lay-event="sel">用户信息</a>
+</script>
+
+<script src="_LIB_/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+	layui.use(['table', 'jquery', 'layer', 'form', 'laydate'], function () {
+		var $ = layui.jquery,
+			form = layui.form,
+			layer = layui.layer,
+			laydate = layui.laydate,
+			table = layui.table;
+
+		var ins1 = laydate.render({
+			elem: '#orderDate'
+			, type: 'datetime'
+			, max: 0
+			, min: '2018-01-01 00:00:00'
+			, range: '~' //或 range: '~' 来自定义分割字符
+			, change: function (value, date, endDate) {
+				var d = value.split(' ~ ');
+				var s = new Date(d[0]);
+				var e = new Date(d[1]);
+				var d = (e - s) / (1000 * 60 * 60 * 24);
+				if (d > 300) {
+					ins1.hint('最多选300天');
+				}
+			}
+		});
+
+		var tableIns = table.render({
+			elem: '#orderTable',
+			height: 'full-20',
+			url: "{:url('Wxpay/table?option=1')}",
+			page: true,
+			limit: 20,
+			toolbar: '#orderToolbarDemo',
+			cols: [[
+				{ type: 'checkbox' }
+				, { field: 'id', title: '序号' }
+				, { field: 'xuehao', title: '学号' }
+				, { field: 'attach', title: '商品名' }
+				, { field: 'cash_fee', title: '实际支付' }
+				, { field: 'total_fee', title: '收款金额' }
+				, { field: 'out_trade_no', title: '商户订单' }
+				, { field: 'transaction_id', title: '微信订单' }
+				, { field: 'trade_type', title: '支付类型' }
+				, { field: 'time_end', title: '支付时间' }
+				, { field: 'time', title: '记录时间' }
+				, { field: 'return_code', title: '业务结果' }
+				// , { fixed: 'right', title: '操作', align: 'center', toolbar: '#orderBarDemo' }
+			]],
+			done: function (res, curr, count) {
+				$("#result").text(res.time + " 开网数量：" + res.kw + " 续费数量：" + res.wf + " 学校金额：" + res.kw * 50 + " 电信金额：" + res.wf * 15);
+			}
+		})
+		table.on('toolbar(orderTable)', function (obj) {
+			var checkStatus = table.checkStatus(obj.config.id);
+			if (obj.event=='add') {
+				data = checkStatus.data;
+
+				layer.confirm('真得要批量查询吗', { title: '提示' }, function (index) {
+					if (data.length == 0) {
+						layer.msg('请勾选要查询的订单');
+					}
+					else {
+						table.render({
+							elem: '#verifyTable',
+							height: 'full-20',
+							url: "{:url('Wxpay/search_order_endtime')}",
+							where: { 'data': data },
+							method: 'post',
+							page: true,
+							limit: 20,
+							cols: [[
+								, { field: 'id', title: '序号' }
+								, { field: 'xuehao', title: '学号' }
+								, { field: 'username', title: '姓名' }
+								, { field: 'attach', title: '商品名' }
+								, { field: 'old_time', title: '到期时间' }
+								, { field: 'total_fee', title: '支付金额' }
+								, { field: 'out_trade_no', title: '订单号' }
+								, { field: 'Enkey', title: 'Enkey' }
+								, { field: 'time', title: '支付时间' }
+								, { field: 'alike', title: '是否同个订单' }
+								// , { fixed: 'right', title: '操作', align: 'center', toolbar: '#orderBarDemo' }
+							]],
+							done: function (res, curr, count) {
+								$("#verifyResult").text("总订单数：" + res.count + " 总金额：" + res.money + " 总人数：" + res.number + " 匹配成功：" + res.yes + " 匹配失败：" + res.no);
+								layer.closeAll(function () { //关闭所有层并执行回调
+									layer.msg('查询成功，结果在下面');
+								});
+							}
+						})
+					}
+
+				})
+
+			}
+
+		})
+
+		form.on('submit(*)', function (data) {
+			data = data.field;
+			// console.log(data);
+			tableIns.reload({
+				where: { //设定异步数据接口的额外参数，任意设
+					'r3': data.r3,
+					'orderDate': data.orderDate,
+					'search': data.search
+				}
+				, page: {
+					curr: 1 //重新从第 1 页开始
+				}
+			});
+		})
+		form.on('submit(Refresh)', function (data) {
+			location.reload();
+		})
+
+
+		// table.on('tool(orderTable)', function(obj){
+		// 	var data = obj.data; //获得当前行数据
+		// 	$.ajax({
+		// 		url:"{:url('Query/index')}"
+		// 		,data:{'xuehao':data.xuehao}
+		// 		,type:'get'
+		// 		,success(res){
+		// 			console.log('xxxx');
+		// 		}
+		// 	})
+		// })
+
+	})
+</script>
+
+</html>

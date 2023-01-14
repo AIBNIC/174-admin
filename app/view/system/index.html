@@ -65,6 +65,7 @@
 					title: "用户编辑"
 					, type: 2
 					, content: "{:url('System/editUser')}"
+					, offset: 't'
 					, success: function (layero, index) {
 						layer.iframeAuto(index);
 						var body = layer.getChildFrame('body', index);
@@ -76,6 +77,11 @@
 						body.find('#name').val(data.name);
 						body.find('#emali').val(data.emali);
 						body.find('#roleName').val(data.role_id);
+					}
+					, end: function () {
+						window.setTimeout(function () {
+							window.location.reload();
+						}, 1000);
 					}
 
 				})
@@ -141,14 +147,27 @@
 						title: "添加用户"
 						, type: 2
 						, content: "{:url('System/addUser')}"
-						,success:function(layero,index){
+						, success: function (layero, index) {
 							layer.iframeAuto(index);
 						}
 					})
 
 					break;
 				case 'adds':
-					layer.msg('批量添加用户');
+					layer.open({
+						type: 2
+						, title: '批量添加用户'
+						, btnAlign: 'c'
+						, offset: 't'
+						, content: "{:url('System/userAdds')}"
+						, success: function (layero, index) {
+							layer.iframeAuto(index)
+						}
+						, end: function () {
+							window.location.reload();
+						}
+					});
+					// layer.msg('批量添加用户');
 					break;
 			};
 		})

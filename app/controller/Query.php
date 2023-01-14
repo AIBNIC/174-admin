@@ -10,6 +10,8 @@ use think\Request;
 use QL\QueryList;
 // use think\View;
 use think\facade\View;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 //用户查询控制器
 class Query extends BaseController
@@ -60,9 +62,12 @@ class Query extends BaseController
 		$abms = $student->getTime($xuehao);
 
 		//安朗信息
-		$rs = $this->abmsUserInfo($stu['xuehao']);
-		if ($rs == 0) {
-			return $this->returnJson(0, '安朗接口卡了,请再按一下搜索');
+		$rs = $student->getAbms($stu['xuehao']);
+		if(count($rs)<=1){
+			return $this->returnJson(0, '数据库有但安朗无此用户');
+		}
+		if ($rs == 0 or is_string($rs)) {
+			return $this->returnJson(0, '安朗接口卡了,请再按一下搜索',$rs);
 		}
 		$rt = $this->abmsIp($stu['xuehao']);
 		// dump($rs);
@@ -70,7 +75,7 @@ class Query extends BaseController
 		$old_time = $rs['6'] == $abms['old_time'] ? $abms['old_time'] : $rs['6'];
 
 
-		if (session('role_id') != 0) {
+		if (session('role_id') != 1) {
 			$stu['userid'] = substr($stu['userid'], -8);
 		}
 		$data = [
@@ -134,12 +139,15 @@ class Query extends BaseController
 	}
 
 	//通过学号查询安朗信息
-	protected function abmsUserInfo($xuehao)
-	{
-		$student = new StudentsModel();
-		$rs = $student->getAbms($xuehao);
-		return $rs;
-	}
+	// protected function abmsUserInfo($xuehao)
+	// {
+	// 	$student = new StudentsModel();
+	// 	$rs = $student->getAbms($xuehao);
+	// 	if(is_string($rs)){
+	// 		return
+	// 	}
+	// 	return $rs;
+	// }
 	protected function abmsIp($xuehao)
 	{
 		$rules = [    //采集规则
@@ -174,6 +182,8 @@ class Query extends BaseController
 			$data = $student->ModifyUserInfo($userid, $groupid);
 			if ($data == 1) {
 				return $this->returnJson(1, '修改成功');
+			} elseif ($data == 0) {
+				return $this->returnJson(0, '安朗接口卡了');
 			} else {
 				return $this->returnJson(0, '修改失败');
 			}
@@ -198,11 +208,13 @@ class Query extends BaseController
 		$limitdate_end = $reData['old_time'] . " 23:59:59";
 		$enkey = $reData['enkey'];
 		$groupid = -1;   //用户组，-1为不做修改
+		// halt($userid, $groupid, $limitdate_end);
 
 		// echo $userid, $limitdate_end, $enkey;
 
 		$student = new StudentsModel();
 		$data = $student->ModifyUserInfo($userid, $groupid, $limitdate_end);
+
 		if ($data == 0) {
 			return $this->returnJson(0, '安朗修改错误');
 		}
@@ -260,5 +272,99 @@ class Query extends BaseController
 	//删除用户
 	public function CardDelUser($userid)
 	{
+		// halt($userid);
+		if(empty($userid)){
+			return $this->returnJson(0,'学号为空');
+		}
+		$abms=new Abms();
+		$res=$abms->CardDelUser($userid);
+		if($res==0){
+			return $this->returnJson(1,'删除成功');
+		}
+		elseif($res==-1){
+			return $this->returnJson(0,'用户不存在');
+		}
+		else{
+			return $this->returnJson(0,'操作失败');
+		}
+	}
+
+	//批量修改时间(未完成)
+	public function editTimes($option = 0)
+	{
+		if ($option == 0) {
+			return view();
+		}
+		$file = request()->file();
+		validate(['file' => [
+			'fileExt'  => 'xlsx,xls,csv'
+		]])->check(['file' => $file]);
+		$savename = \think\facade\Filesystem::disk('public')->putFile('topic', $file['file']);
+		$savename = 'static\\document\\' . $savename;
+		$savename = str_replace("/", '\\', $savename);
+
+
+		$reader = IOFactory::createReader('Xlsx');
+		$spreadsheet = $reader->load($savename);
+
+		$sheet = $spreadsheet->getActiveSheet();
+		$link = $sheet->getHighestRow();   //总行数
+
+
+		if ($link <= 2) {
+			return $this->returnJson(0, '失败，没有数据');
+		}
+		$data = [];
+		for ($row = 3; $row <= $link; $row++) {
+			if (strlen($sheet->getCellByColumnAndRow(1, $row)->getValue()) == 11) {
+				$user['xuehao'] = $sheet->getCellByColumnAndRow(1, $row)->getValue();
+				$user['EndTime'] = $sheet->getCellByColumnAndRow(2, $row)->getValue();
+				$user['EndKey'] = $sheet->getCellByColumnAndRow(3, $row)->getValue();
+				$user['EndTime'] = str_replace('/', '-', $user['EndTime']);
+				$data[] = $user;
+			} else {
+				return $this->returnJson(0, '第' . ($row - 2) . '位同学学号错误');
+			}
+		}
+
+
+		/*
+		这边不知为何在这里修改不了时间
+		*/
+		$student = new StudentsModel();
+		$reslue = [];
+		// $groupid = -1;
+		// $rsasd = $student->ModifyUserInfo("20205539142", $groupid, "2023-06-30 23:59:58");
+		// halt($rsasd);
+
+		// foreach ($data as $vo) {
+		// 	$reslue[] = $student->ModifyUserInfo($vo['xuehao'], $groupid, $vo['EndTime']);
+		// }
+		// if (in_array(0, $reslue)) {
+		// 	$errkey = [];
+		// 	foreach ($reslue as $key => $vo) {
+		// 		if ($vo == 0) {
+		// 			$errKey[] = $key + 1;
+		// 		}
+		// 	}
+		// 	$errKey = implode(',', $errKey);
+		// 	return $this->returnJson(0, '安朗修改错误,第' . $errKey);
+		// }
+		halt($data);
+		$stu = [];
+		foreach ($data as $vo) {
+			$stu[] = $student->editTime($vo['xuehao'], $vo['EndTime'], $vo['EndKey']);
+		}
+		if (in_array(0, $stu)) {
+			$errkey = [];
+			foreach ($reslue as $key => $vo) {
+				if ($vo == 0) {
+					$errKey[] = $key + 1;
+				}
+			}
+			$errKey = implode(',', $errKey);
+			return $this->returnJson(0, '数据表更新错误' . $errKey);
+		}
+		return $this->returnJson(1, '修改成功');
 	}
 }
