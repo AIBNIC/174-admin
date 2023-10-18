@@ -1,0 +1,36 @@
+#query{
+	background-color: rgb(244, 244, 244);
+}
+#ss{
+	text-align: center;
+}
+#ss h3:first-child{
+	padding: .75rem 1.25rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+}
+#ss input{
+	padding: .375rem .75rem;
+	border-radius: 5%;
+}
+#touxiang{
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	border: 1px solid rgb(143, 137, 137);
+	
+}
+
+.msg  tr{
+	background-color: rgb(255, 255, 255);
+	margin: 10px;
+}
+tr td:first-child {
+	width: 35px;
+	font-size: 16px;
+}
+tbody>tr{
+	padding: 20px;
+}
